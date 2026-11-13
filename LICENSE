@@ -1,0 +1,48 @@
+This repository contains the source of the project page on infrastructure self-calibration
+for radio-based indoor positioning.
+
+Page text
+---------
+The text of index.html is licensed under the Creative Commons Attribution 4.0
+International License (CC BY 4.0), https://creativecommons.org/licenses/by/4.0/.
+Copyright (c) 2026 Paul Schwarzbach.
+
+Page code
+---------
+The HTML structure, CSS, JavaScript, the scripts in tools/ and brand/make_logo.py
+are licensed under the MIT License:
+
+Copyright (c) 2026 Paul Schwarzbach
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Excluded
+--------
+- Figures in assets/fig/ are reproduced from the publications credited next to
+  them on the page and remain under the terms of those publications. The figures
+  of the IEEE Access and IEEE JISPIN papers are licensed under CC BY 4.0.
+- The deployment map and the node table in index.html are drawn from UWB-ASC 1.0.0
+  (https://doi.org/10.5281/zenodo.24055896), whose data are licensed under
+  CC BY 4.0.
+- Fonts in assets/fonts/ are licensed under the SIL Open Font License 1.1
+  (see assets/fonts/OFL-*.txt).
+- The logo in brand/logo/ and its copies (assets/img/favicon.svg,
+  assets/img/apple-touch-icon.png, assets/img/og-image.png, the marks in the page
+  header and title) may be used unmodified to refer to this work. Modified
+  versions are not licensed. Copyright (c) 2026 Paul Schwarzbach.

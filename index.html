@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Infrastructure Self-Calibration · radio-based indoor positioning</title>
+<meta name="description" content="Five works on calibrating the infrastructure of radio positioning systems from its own measurements: a tutorial with reference implementations, the UWB-ASC dataset, a systematic review of the terminology, and two studies of grid-based Bayesian estimation.">
+<meta name="author" content="Paul Schwarzbach">
+<link rel="canonical" href="https://paulschwarzbach.github.io/self-calibration/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Infrastructure Self-Calibration · radio-based indoor positioning">
+<meta property="og:description" content="A tutorial with reference implementations, the UWB-ASC dataset, a terminology review and two studies of grid-based Bayesian estimation. Findings, figures, code, data and citations.">
+<meta property="og:url" content="https://paulschwarzbach.github.io/self-calibration/">
+<meta property="og:image" content="https://paulschwarzbach.github.io/self-calibration/assets/img/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="assets/img/favicon.svg?v=cc1daaf2" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png?v=cc1daaf2">
+<link rel="preload" href="assets/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/source-serif-4-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/style.css?v=43b45f3a">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "ScholarlyArticle",
+      "name": "A Tutorial on Infrastructure Self-Calibration for Radio-Based Indoor Positioning",
+      "author": {"@type": "Person", "name": "Paul Schwarzbach", "sameAs": "https://orcid.org/0000-0002-1091-782X"},
+      "url": "https://arxiv.org/abs/2611.15503",
+      "identifier": "https://doi.org/10.48550/arXiv.2611.15503",
+      "datePublished": "2026-11-11",
+      "isPartOf": {"@type": "WebPage", "url": "https://paulschwarzbach.github.io/self-calibration/"}
+    },
+    {
+      "@type": "Dataset",
+      "name": "UWB Anchor Self-Calibration Dataset (UWB-ASC)",
+      "description": "A testing ground for anchor self-calibration, recorded in one industrial hall with ultra-wideband (UWB) two-way ranging: two measured deployments, a seeded range simulator with 81 frozen draws, and readers of two public UWB datasets.",
+      "url": "https://github.com/PaulSchwarzbach/UWB-ASC-dataset",
+      "identifier": "https://doi.org/10.5281/zenodo.24055896",
+      "sameAs": "https://doi.org/10.5281/zenodo.24055895",
+      "citation": "https://arxiv.org/abs/2611.11579",
+      "version": "1.0.0",
+      "license": "https://creativecommons.org/licenses/by/4.0/",
+      "isAccessibleForFree": true,
+      "keywords": ["anchor self-calibration", "auto-positioning", "indoor positioning", "localization", "two-way ranging", "ultra-wideband (UWB)"],
+      "temporalCoverage": "2025",
+      "spatialCoverage": {"@type": "Place", "name": "Torgau, Germany"},
+      "creator": {"@type": "Person", "name": "Paul Schwarzbach", "sameAs": "https://orcid.org/0000-0002-1091-782X"}
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "name": "radiocal: reference implementations and result tables for infrastructure self-calibration",
+      "codeRepository": "https://github.com/PaulSchwarzbach/radiocal",
+      "identifier": "https://doi.org/10.5281/zenodo.24134343",
+      "sameAs": "https://doi.org/10.5281/zenodo.24134342",
+      "version": "1.0.0",
+      "programmingLanguage": "Python",
+      "license": "https://opensource.org/licenses/MIT",
+      "author": {"@type": "Person", "name": "Paul Schwarzbach", "sameAs": "https://orcid.org/0000-0002-1091-782X"}
+    },
+    {
+      "@type": "ScholarlyArticle",
+      "name": "Evaluation of Grid-Based Uncertainty Propagation for Collaborative Self-Calibration in Indoor Positioning Systems",
+      "identifier": "https://doi.org/10.1109/JISPIN.2026.3687458",
+      "isPartOf": {"@type": "Periodical", "name": "IEEE Journal of Indoor and Seamless Positioning and Navigation"},
+      "datePublished": "2026",
+      "author": [{"@type": "Person", "name": "Paul Schwarzbach", "sameAs": "https://orcid.org/0000-0002-1091-782X"},
+                 {"@type": "Person", "name": "Andrea Jung", "sameAs": "https://orcid.org/0000-0003-1019-6134"}]
+    },
+    {
+      "@type": "ScholarlyArticle",
+      "name": "Terminology Fragmentation of Infrastructure Calibration in Radio-Based Indoor Positioning: A Systematic Review",
+      "identifier": "https://doi.org/10.1109/ACCESS.2026.3680224",
+      "isPartOf": {"@type": "Periodical", "name": "IEEE Access"},
+      "datePublished": "2026-04-02",
+      "author": {"@type": "Person", "name": "Paul Schwarzbach", "sameAs": "https://orcid.org/0000-0002-1091-782X"}
+    },
+    {
+      "@type": "ScholarlyArticle",
+      "name": "Auto-Positioning in Radio-based Localization Systems: A Bayesian Approach",
+      "identifier": "https://doi.org/10.1109/IPIN54987.2022.9917513",
+      "datePublished": "2022-09-05",
+      "author": [{"@type": "Person", "name": "Andrea Jung", "sameAs": "https://orcid.org/0000-0003-1019-6134"},
+                 {"@type": "Person", "name": "Paul Schwarzbach", "sameAs": "https://orcid.org/0000-0002-1091-782X"},
+                 {"@type": "Person", "name": "Oliver Michler", "sameAs": "https://orcid.org/0000-0002-8599-5304"}]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <nav class="wrap topnav" aria-label="Sections">
+    <a class="brand" href="#top"><!-- MARK:START --><svg class="brand-mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><g transform="translate(4.16 4.18)"><path d="M61.78,23.53L76.26,68.11" fill="none" style="stroke:var(--ink-2)" stroke-width="2.1" stroke-linecap="round"/><path d="M68.77,76.44L22.91,66.69" fill="none" style="stroke:var(--ink-2)" stroke-width="2.1" stroke-linecap="round"/><path d="M19.45,56.04L50.82,21.2" fill="none" style="stroke:var(--ink-2)" stroke-width="2.1" stroke-linecap="round"/><path d="M55.99,23.83L52.33,41.04" fill="none" style="stroke:var(--ink-2)" stroke-width="2.1" stroke-linecap="round"/><path d="M71.4,71.27L58.32,59.49" fill="none" style="stroke:var(--ink-2)" stroke-width="2.1" stroke-linecap="round"/><path d="M22.61,60.9L39.35,55.46" fill="none" style="stroke:var(--ink-2)" stroke-width="2.1" stroke-linecap="round"/><rect x="66.22" y="43.02" width="5.6" height="5.6" style="fill:var(--brand-fac)"/><rect x="43.04" y="68.76" width="5.6" height="5.6" style="fill:var(--brand-fac)"/><rect x="32.34" y="35.82" width="5.6" height="5.6" style="fill:var(--brand-fac)"/><rect x="52.02" y="26.51" width="5.6" height="5.6" style="fill:var(--brand-fac)"/><rect x="64.44" y="64.72" width="5.6" height="5.6" style="fill:var(--brand-fac)"/><rect x="25.14" y="56.37" width="5.6" height="5.6" style="fill:var(--brand-fac)"/><circle cx="58.32" cy="12.87" r="8.6" style="fill:var(--brand-fac)"/><circle cx="79.73" cy="78.77" r="8.6" style="fill:var(--brand-fac)"/><circle cx="11.96" cy="64.36" r="8.6" style="fill:var(--brand-fac)"/><path d="M50,37.8A14.2,14.2 0 0,1 53.16,38.16" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M56.16,39.21A14.2,14.2 0 0,1 58.85,40.9" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M61.1,43.15A14.2,14.2 0 0,1 62.79,45.84" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M63.84,48.84A14.2,14.2 0 0,1 64.2,52" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M63.84,55.16A14.2,14.2 0 0,1 62.79,58.16" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M61.1,60.85A14.2,14.2 0 0,1 58.85,63.1" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M56.16,64.79A14.2,14.2 0 0,1 53.16,65.84" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M50,66.2A14.2,14.2 0 0,1 46.84,65.84" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M43.84,64.79A14.2,14.2 0 0,1 41.15,63.1" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M38.9,60.85A14.2,14.2 0 0,1 37.21,58.16" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M36.16,55.16A14.2,14.2 0 0,1 35.8,52" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M36.16,48.84A14.2,14.2 0 0,1 37.21,45.84" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M38.9,43.15A14.2,14.2 0 0,1 41.15,40.9" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M43.84,39.21A14.2,14.2 0 0,1 46.84,38.16" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M41.4,52a8.6,8.6 0 1,0 17.2,0a8.6,8.6 0 1,0 -17.2,0ZM45,52a5,5 0 1,1 10,0a5,5 0 1,1 -10,0Z" style="fill:var(--ink)" fill-rule="evenodd"/></g></svg><!-- MARK:END --><span class="brand-text">Self-Calibration</span></a>
+    <ul>
+      <li><a href="#terms">Terminology</a></li>
+      <li><a href="#topologies">Topologies</a></li>
+      <li><a href="#guide">Guide</a></li>
+      <li><a href="#research">Research</a></li>
+      <li><a href="#dataset">Dataset</a></li>
+      <li><a href="#code">Code &amp; data</a></li>
+      <li><a href="#cite">Cite</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="main">
+
+<section class="wrap intro" id="top">
+  <h1 class="lockup"><!-- MARK:START --><svg class="brand-mark" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><g transform="translate(4.16 4.18)"><path d="M61.78,23.53L76.26,68.11" fill="none" style="stroke:var(--ink-2)" stroke-width="2.1" stroke-linecap="round"/><path d="M68.77,76.44L22.91,66.69" fill="none" style="stroke:var(--ink-2)" stroke-width="2.1" stroke-linecap="round"/><path d="M19.45,56.04L50.82,21.2" fill="none" style="stroke:var(--ink-2)" stroke-width="2.1" stroke-linecap="round"/><path d="M55.99,23.83L52.33,41.04" fill="none" style="stroke:var(--ink-2)" stroke-width="2.1" stroke-linecap="round"/><path d="M71.4,71.27L58.32,59.49" fill="none" style="stroke:var(--ink-2)" stroke-width="2.1" stroke-linecap="round"/><path d="M22.61,60.9L39.35,55.46" fill="none" style="stroke:var(--ink-2)" stroke-width="2.1" stroke-linecap="round"/><rect x="66.22" y="43.02" width="5.6" height="5.6" style="fill:var(--brand-fac)"/><rect x="43.04" y="68.76" width="5.6" height="5.6" style="fill:var(--brand-fac)"/><rect x="32.34" y="35.82" width="5.6" height="5.6" style="fill:var(--brand-fac)"/><rect x="52.02" y="26.51" width="5.6" height="5.6" style="fill:var(--brand-fac)"/><rect x="64.44" y="64.72" width="5.6" height="5.6" style="fill:var(--brand-fac)"/><rect x="25.14" y="56.37" width="5.6" height="5.6" style="fill:var(--brand-fac)"/><circle cx="58.32" cy="12.87" r="8.6" style="fill:var(--brand-fac)"/><circle cx="79.73" cy="78.77" r="8.6" style="fill:var(--brand-fac)"/><circle cx="11.96" cy="64.36" r="8.6" style="fill:var(--brand-fac)"/><path d="M50,37.8A14.2,14.2 0 0,1 53.16,38.16" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M56.16,39.21A14.2,14.2 0 0,1 58.85,40.9" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M61.1,43.15A14.2,14.2 0 0,1 62.79,45.84" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M63.84,48.84A14.2,14.2 0 0,1 64.2,52" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M63.84,55.16A14.2,14.2 0 0,1 62.79,58.16" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M61.1,60.85A14.2,14.2 0 0,1 58.85,63.1" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M56.16,64.79A14.2,14.2 0 0,1 53.16,65.84" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M50,66.2A14.2,14.2 0 0,1 46.84,65.84" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M43.84,64.79A14.2,14.2 0 0,1 41.15,63.1" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M38.9,60.85A14.2,14.2 0 0,1 37.21,58.16" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M36.16,55.16A14.2,14.2 0 0,1 35.8,52" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M36.16,48.84A14.2,14.2 0 0,1 37.21,45.84" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M38.9,43.15A14.2,14.2 0 0,1 41.15,40.9" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M43.84,39.21A14.2,14.2 0 0,1 46.84,38.16" fill="none" style="stroke:var(--brand-halo)" stroke-width="1.9" stroke-linecap="round"/><path d="M41.4,52a8.6,8.6 0 1,0 17.2,0a8.6,8.6 0 1,0 -17.2,0ZM45,52a5,5 0 1,1 10,0a5,5 0 1,1 -10,0Z" style="fill:var(--ink)" fill-rule="evenodd"/></g></svg><!-- MARK:END --><span>Infrastructure Self-Calibration <span class="expansion">for radio-based indoor positioning</span></span></h1>
+  <div class="intro-grid">
+    <div class="intro-text">
+      <p class="lead">Radio positioning needs the positions of its anchors, access points, base stations, or reconfigurable intelligent surfaces, and manual surveying is costly and error-prone. Calibrating this infrastructure from its own measurements is one estimation problem, studied in at least four communities as self-calibration, auto-positioning, anchor self-localization, network localization, or radio simultaneous localization and mapping&nbsp;(SLAM).</p>
+      <p class="lead">This page collects five works on the problem, from a Bayesian grid filter in 2022 to a tutorial with reference implementations and an open ultra-wideband (UWB) dataset in 2026. The tutorial teaches the problem through one factor graph, in which the measurement topology sets the factors and the reference information enters&nbsp;as&nbsp;priors.</p>
+      <p class="actions">
+        <a class="btn btn-primary" href="https://arxiv.org/abs/2611.15503" target="_blank" rel="noopener">Tutorial preprint</a>
+        <a class="btn" href="https://github.com/PaulSchwarzbach/radiocal" target="_blank" rel="noopener">Code: radiocal</a>
+        <a class="btn" href="https://doi.org/10.5281/zenodo.24055896" target="_blank" rel="noopener">Dataset:&nbsp;<span class="nobr">UWB-ASC</span></a>
+      </p>
+    </div>
+    <figure class="intro-fig">
+      <div class="paper-fig"><img src="assets/fig/tutorial-fig1-overview.svg" width="420" height="472" alt="Three stacked panels. Top: anchors of unknown position, each marked with a question mark, linked by range measurements, some of them non-line-of-sight and some out of range, with a mobile tag in green. Middle: the unified factor graph, with anchor variables, two tag poses, and range, motion and prior factors. Bottom: the calibrated anchor map with the estimated tag path."></div>
+      <figcaption>From ranges among anchors of unknown position (?) and a mobile tag, through one factor graph, to the calibrated anchors and the path of the tag. <span class="credit">Tutorial,&nbsp;Fig.&nbsp;1.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="wrap section" id="terms" aria-labelledby="terms-h">
+  <h2 id="terms-h">One operation, twenty&nbsp;names</h2>
+  <div class="statement">
+    <div class="st st-many">
+      <p class="st-num">20</p>
+      <p class="st-label">title terms across the 36 papers of the terminology review, most of them used by a single&nbsp;paper</p>
+    </div>
+    <div class="funnel" aria-hidden="true">
+      <svg class="funnel-h" viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false"><path d="M0,14L100,50M0,32L100,50M0,50L100,50M0,68L100,50M0,86L100,50"/></svg>
+      <svg class="funnel-v" viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false"><path d="M14,0L50,100M32,0L50,100M50,0L50,100M68,0L50,100M86,0L50,100"/></svg>
+    </div>
+    <div class="st st-one">
+      <p class="st-num">1</p>
+      <p class="st-label">operation: estimating the positions of static reference points from range measurements, without manual&nbsp;surveying</p>
+    </div>
+  </div>
+  <p class="statement-note">No term has prevailed. The review recommends self-calibration as the canonical process term and anchor as the default entity prefix, reflecting the UWB-dominant corpus. <a href="#access2026">More on&nbsp;the&nbsp;review</a></p>
+</section>
+
+<section class="wrap section" id="topologies" aria-labelledby="topologies-h">
+  <h2 id="topologies-h">Four measurement&nbsp;topologies</h2>
+  <p class="section-lead">The measurement topology is the set of node pairs that measure ranges. Four topologies recur across the literature under otherwise unrelated names, and the tutorial draws each as a factor&nbsp;graph.</p>
+  <ul class="topo-grid">
+    <li class="topo" id="topo-a">
+      <div class="paper-fig"><img src="assets/fig/tutorial-fig3a-fully-meshed.svg" width="330" height="290" alt="Factor graph of four anchors p1 to p4 in which every pair is linked by a range factor."></div>
+      <h3>Fully&nbsp;meshed</h3>
+      <p>Every anchor pair measures a range, and no mobile device takes part. Of the topologies among anchors alone, it constrains the anchors&nbsp;most.</p>
+    </li>
+    <li class="topo" id="topo-b">
+      <div class="paper-fig"><img src="assets/fig/tutorial-fig3b-multi-hop.svg" width="330" height="290" alt="Factor graph of four anchors p1 to p4 in which the pair p1 and p3 is out of range, drawn dashed, and the other pairs are linked by range factors."></div>
+      <h3>Multi-hop</h3>
+      <p>Some anchor pairs are out of range, so the calibration propagates through chains of anchors, and the error grows with&nbsp;each&nbsp;hop.</p>
+    </li>
+    <li class="topo" id="topo-c">
+      <div class="paper-fig"><img src="assets/fig/tutorial-fig3c-mobile-assisted.svg" width="330" height="290" alt="Factor graph of four anchors p1 to p4 and one pose x_t of a mobile device in the middle. The pose ranges to all four anchors, three anchor pairs along the sides range to each other, and the pair p3 and p4 is out of range."></div>
+      <h3>Mobile-assisted</h3>
+      <p>A device ranges to the anchors in addition to the links among them, moving along a path or standing at a&nbsp;few&nbsp;points.</p>
+    </li>
+    <li class="topo" id="topo-d">
+      <div class="paper-fig"><img src="assets/fig/tutorial-fig3d-mobile-only.svg" width="330" height="290" alt="Factor graph of four anchors p1 to p4 and three poses x1 to x3 of a moving device, chained by motion factors. Each pose ranges to some anchors, and the anchors do not range to each other."></div>
+      <h3>Mobile-only</h3>
+      <p>Only a moving device ranges to the anchors, and the anchors do not range to&nbsp;each&nbsp;other.</p>
+    </li>
+  </ul>
+  <figure class="topo-legend">
+    <div class="paper-fig"><img src="assets/fig/tutorial-fig3-legend.svg" width="520" height="40" alt="Legend: anchor p_i as a blue circle, pose x_t as a green circle, range factor psi as a black square, motion factor phi as a green square, and a dashed line for out of range."></div>
+    <figcaption>The four measurement topologies as factor graphs. <span class="credit">Tutorial,&nbsp;Fig.&nbsp;3.</span></figcaption>
+  </figure>
+</section>
+
+<section class="wrap section" id="guide" aria-labelledby="guide-h">
+  <h2 id="guide-h">From deployment&nbsp;to&nbsp;method</h2>
+  <p class="section-lead">The tutorial draws three lessons from its examples on the two deployments of <span class="nobr">UWB-ASC</span>, one with line-of-sight (LOS) and one rich in non-line-of-sight (NLOS) propagation. Its decision tree combines them with the theory of the tutorial into a choice&nbsp;of&nbsp;method.</p>
+  <ul class="lesson-grid">
+    <li class="lesson" data-fold>
+      <div class="lesson-head">
+        <h3 data-fold-title>Full meshes: the loss before&nbsp;the&nbsp;engine</h3>
+        <p class="lesson-text">On a full mesh, choose a robust loss and set its scale first. The engines then reach similar errors, so the engine of the positioning system can do the&nbsp;calibration.</p>
+        <p class="hint">Effect on the anchor&nbsp;error</p>
+      </div>
+      <div class="lesson-more" data-fold-body>
+        <p class="effect">Anchor root mean square error (RMSE) on the full meshes of the NLOS deployment: 3.94&nbsp;m under a quadratic loss, 0.79&nbsp;m under the Cauchy loss. <span class="credit">Tutorial,&nbsp;Table&nbsp;VI.</span></p>
+      </div>
+    </li>
+    <li class="lesson" data-fold>
+      <div class="lesson-head">
+        <h3 data-fold-title>Thinned and partial meshes: the start&nbsp;decides</h3>
+        <p class="lesson-text">On thinned or partial meshes, the start decides which minimum a solver reaches, so test the result at surveyed check&nbsp;points.</p>
+        <p class="hint">Effect on the anchor&nbsp;error</p>
+      </div>
+      <div class="lesson-more" data-fold-body>
+        <p class="effect">Anchor RMSE on randomly thinned meshes of the LOS deployment that stay globally rigid: 4.03&nbsp;m from the classical start, 0.24&nbsp;m from the survey as start. <span class="credit">Tutorial,&nbsp;Table&nbsp;VI.</span></p>
+      </div>
+    </li>
+    <li class="lesson" data-fold>
+      <div class="lesson-head">
+        <h3 data-fold-title>Range bias and offset&nbsp;states</h3>
+        <p class="lesson-text">A systematic ranging bias sets an error floor that a robust loss cannot remove. On a LOS deployment, estimating range offsets&nbsp;lowers&nbsp;it.</p>
+        <p class="hint">Effect on the anchor&nbsp;error</p>
+      </div>
+      <div class="lesson-more" data-fold-body>
+        <p class="effect">Anchor RMSE on the full meshes of the LOS deployment: 0.23&nbsp;m without offsets, 0.13&nbsp;m with an offset per device. <span class="credit">Tutorial,&nbsp;Table&nbsp;VI.</span></p>
+      </div>
+    </li>
+  </ul>
+  <p class="note">The examples cover two-dimensional UWB two-way ranging at the two deployments and one public scan, so the lessons are demonstrations within&nbsp;that&nbsp;scope.</p>
+  <h3 class="guide-h" id="tree-h">Decision&nbsp;tree</h3>
+  <p class="tree-intro">Which method fits your deployment? Answer a few short questions about it. They concern only the deployment and can be answered before any algorithm is chosen, and the last step names a topology, a method and the examples behind it. Before the first question, the tree adds the nuisance states of the measurement primitive (Table IV). Section and table numbers refer to the&nbsp;tutorial.</p>
+  <div class="stepper" hidden aria-labelledby="tree-h">
+    <ol class="trail" hidden aria-label="Answers so far"></ol>
+    <div class="step-body"></div>
+    <p class="step-live visually-hidden" aria-live="polite"></p>
+  </div>
+  <script type="application/json" id="guide-data">
+{
+  "first": "q1",
+  "nodes": {
+    "q1": {"q": "can the anchors measure each other?", "answers": [["yes", "q2"], ["no", "q5"]]},
+    "q2": {"q": "does a mobile device also range to the anchors?", "answers": [["yes", "leafMobile"], ["no", "q3"]]},
+    "q3": {"q": "do all anchor pairs range directly?", "answers": [["yes", "leafFull"], ["no", "q4"]]},
+    "q4": {"q": "is the thinned graph globally rigid? (Sec. IV)", "answers": [["yes", "leafMulti"], ["rigid only", "deadRigid"], ["flexible", "deadFlex"]]},
+    "q5": {"q": "does a mobile device range to the anchors?", "answers": [["yes", "q6"], ["no", "deadNoMeas"]]},
+    "q6": {"q": "does the device move through the space?", "answers": [["yes", "leafSlam"], ["no", "deadStatic"]]},
+    "leafFull": {"kind": "leaf", "name": "fully meshed", "evidence": "(all sessions, both deployments)", "advice": "robust loss and scale first, any engine", "method": [{"text": "e.g. "}, {"code": "factor_graph"}, {"text": " cauchy"}], "topo": "a"},
+    "leafMulti": {"kind": "leaf", "name": "multi-hop", "evidence": "(one session per deployment, public scan)", "advice": "several starts by robust cost (untested), or a convex relaxation (Sec. V)", "topo": "b"},
+    "deadRigid": {"kind": "dead", "prefix": "rigid only:", "advice": "add links first, or seeds, or compare starts"},
+    "deadFlex": {"kind": "dead", "prefix": "flexible:", "advice": "add links, a mobile, or seeds", "ref": "(Sec. IV)"},
+    "leafMobile": {"kind": "leaf", "name": "mobile-assisted", "evidence": "(NLOS deployment, static device)", "cond": "with a rigid graph of anchors and poses", "advice": "robust loss and scale first, any engine", "method": [{"text": "e.g. "}, {"code": "ekf"}, {"text": " or "}, {"code": "factor_graph"}, {"text": ", both cauchy"}], "topo": "c"},
+    "leafSlam": {"kind": "leaf", "name": "mobile-only", "evidence": "(two walks)", "cond": "with at least d+1 anchors, poses not all collinear, for d=3 not all coplanar", "advice": "batch re-linearization over filtering", "method": [{"code": "fg_slam"}, {"text": " cauchy"}], "topo": "d"},
+    "deadStatic": {"kind": "dead", "prefix": "static device: anchor geometry not identifiable,", "advice": "collect motion", "ref": "(Sec. IV)"},
+    "deadNoMeas": {"kind": "dead", "prefix": "no calibration measurements:", "advice": "survey manually", "ref": "(Sec. VII-A)"}
+  }
+}
+  </script>
+  <details class="guide-fallback" open>
+    <summary>The whole tree&nbsp;as&nbsp;a&nbsp;figure</summary>
+    <figure>
+      <div class="paper-fig guide-fig"><img src="assets/fig/tutorial-fig12-decision-tree.svg" width="1000" height="300" loading="lazy" alt="Decision tree. Start at the deployment and add the nuisance states of its primitive. If the anchors can measure each other and a mobile device also ranges to them, the leaf is mobile-assisted. If no mobile device ranges and all anchor pairs range directly, the leaf is fully meshed. Otherwise the thinned graph is tested for global rigidity, which leads to the multi-hop leaf, or to adding links, a mobile or seeds, or to comparing starts. If the anchors cannot measure each other, a moving device leads to the mobile-only leaf, a static device to collecting motion, and no calibration measurements to a manual survey."></div>
+      <figcaption>Decision tree from the primitive and edge set of a deployment to a topology and an algorithm family. Leaves name their evidence in Section&nbsp;VI. <span class="credit">Tutorial,&nbsp;Fig.&nbsp;12.</span></figcaption>
+    </figure>
+  </details>
+</section>
+
+<section class="wrap section" id="research" aria-labelledby="research-h">
+  <h2 id="research-h">Research</h2>
+
+  <ol class="timeline">
+    <li><time datetime="2022-09-05">Sep 2022</time><a href="#ipin2022">Bayesian grid filter&nbsp;at&nbsp;IPIN</a></li>
+    <li><time datetime="2025-03-13">Mar 2025</time><a href="#dataset">NLOS recordings of&nbsp;<span class="nobr">UWB-ASC</span></a></li>
+    <li><time datetime="2025-10-22">Oct 2025</time><a href="#dataset">LOS recordings of&nbsp;<span class="nobr">UWB-ASC</span></a></li>
+    <li><time datetime="2026-04-02">Apr 2026</time><a href="#access2026">Terminology review in IEEE&nbsp;Access</a></li>
+    <li><time datetime="2026-04">Apr 2026</time><a href="#jispin2026">Uncertainty propagation in IEEE&nbsp;JISPIN</a></li>
+    <li><time datetime="2026-11-08">Nov 2026</time><a href="#dataset"><span class="nobr">UWB-ASC</span> 1.0.0 and&nbsp;descriptor</a></li>
+    <li><time datetime="2026-11-11">Nov 2026</time><a href="#tutorial">Tutorial preprint and radiocal&nbsp;1.0.0</a></li>
+  </ol>
+
+  <article class="work" id="tutorial" aria-labelledby="tutorial-h" data-fold>
+    <div class="work-head">
+      <p class="venue"><span class="badge">Preprint</span><span class="status">Under review&nbsp;·&nbsp;2026</span></p>
+      <h3 id="tutorial-h" data-fold-title>A Tutorial on Infrastructure Self-Calibration for Radio-Based Indoor&nbsp;Positioning</h3>
+      <p class="authors">Paul&nbsp;Schwarzbach</p>
+      <p class="gist">Teaches infrastructure self-calibration as one factor graph and carries a recorded session through every step, with released code that recomputes every result&nbsp;table.</p>
+    </div>
+    <div class="work-body" data-fold-body>
+      <div class="split">
+        <div class="card-text">
+          <p><strong>Aim.</strong> To let a reader state a deployment as one factor graph, judge from its edge set what the ranges can identify, choose an algorithm family and its starting point, and check a calibration before trusting&nbsp;it.</p>
+          <p class="data-note">Two-dimensional UWB two-way ranging. One static session of the LOS deployment of <span class="nobr">UWB-ASC</span> runs through every step, and the NLOS deployment and the public <span class="nobr">TWR-CLOUD-Bern</span> dataset serve as&nbsp;contrasts.</p>
+          <ul class="findings">
+            <li>Range-based calibration is one factor graph. The measurement topology sets its factors, and the reference information enters&nbsp;as&nbsp;priors.</li>
+            <li>Rigidity and the motion of a mobile device decide what the ranges can identify. Multidimensional scaling, nonlinear least squares, recursive filters and convex relaxations act as inference engines over the same graph and differ in their data interface and in their need for a starting&nbsp;point.</li>
+            <li>Three lessons and a decision tree lead from a deployment to a method, and the released code recomputes every result&nbsp;table.</li>
+          </ul>
+        </div>
+        <div class="card-media">
+        <div class="table-scroll">
+          <table class="results lessons">
+            <caption>Anchor RMSE without and with the action of each finding. <span class="credit">Tutorial,&nbsp;Table&nbsp;VI.</span></caption>
+            <thead><tr><th scope="col">Finding and action</th><th scope="col">Where</th><th scope="col" class="num">without (m)</th><th scope="col" class="num">with (m)</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Loss before engine (VI-A): gaussian → cauchy</th><td>full meshes, NLOS deployment</td><td class="num">3.94</td><td class="num">0.79</td></tr>
+              <tr><th scope="row">Start decides (VI-B): classical start → oracle start</th><td>globally rigid random views of s03</td><td class="num">4.03</td><td class="num">0.24</td></tr>
+              <tr><th scope="row">Range bias (VI-C): no offsets → per-device offsets</th><td>full meshes, LOS deployment</td><td class="num">0.23</td><td class="num">0.13</td></tr>
+              <tr><th scope="row">Mobile-only (VI-D): <code>ekf_slam</code> → <code>fg_slam</code></th><td>walk s01, LOS deployment</td><td class="num">1.88</td><td class="num">0.36</td></tr>
+              <tr><th scope="row">Seeds (VI-E): blind → three seeds</th><td>κ=3 view of s03</td><td class="num">0.43</td><td class="num">0.71</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="table-note">Aligned anchor RMSE of the factor graph or of the engines a row names, under the cauchy kernel unless the action changes it, as medians where a row covers several sessions or views. The oracle start is the survey, and κ is the thinning level of the multi-hop&nbsp;views.</p>
+        </div>
+      </div>
+      <figure class="card-wide">
+        <div class="paper-fig pair">
+          <div><img src="assets/fig/tutorial-fig8a-los.svg" width="360" height="247" loading="lazy" alt="Empirical distribution functions for the LOS deployment: the range error per anchor pair, and the anchor errors of the factor graph on the full mesh with the gaussian and the cauchy kernel, on the multi-hop view with kappa 3, and on the mobile-only view. The cauchy full-mesh curve rises steepest."></div>
+          <div><img src="assets/fig/tutorial-fig8b-nlos.svg" width="360" height="247" loading="lazy" alt="Empirical distribution functions for the NLOS deployment, on its own clipped abscissa: the range error per anchor pair, and the anchor errors of the factor graph on the full mesh with the gaussian and the cauchy kernel, on the multi-hop view with kappa 3, and on the mobile-assisted view. The gaussian full-mesh curve rises last."></div>
+        </div>
+        <figcaption>Empirical cumulative distribution functions (ECDF) of the absolute session-median range residual per anchor pair and of the aligned error per anchor of the factor graph, pooled over the sessions. Each panel clips its own abscissa. <span class="credit">Tutorial,&nbsp;Fig.&nbsp;8.</span></figcaption>
+      </figure>
+      <p class="links card-links">
+        <a href="https://arxiv.org/abs/2611.15503" target="_blank" rel="noopener">arXiv:2611.15503</a>
+        <a href="https://github.com/PaulSchwarzbach/radiocal" target="_blank" rel="noopener">Code</a>
+        <a href="https://doi.org/10.5281/zenodo.24134343" target="_blank" rel="noopener">Zenodo</a>
+        <a href="#cite-tutorial">BibTeX</a>
+      </p>
+    </div>
+  </article>
+
+  <article class="work" id="jispin2026" aria-labelledby="jispin-h" data-fold>
+    <div class="work-head">
+      <p class="venue"><span class="badge">IEEE JISPIN</span><span class="status">Vol. 4, pp. 161–170, 2026 ·&nbsp;open&nbsp;access</span></p>
+      <h3 id="jispin-h" data-fold-title>Evaluation of Grid-Based Uncertainty Propagation for Collaborative Self-Calibration in Indoor Positioning&nbsp;Systems</h3>
+      <p class="authors">Paul Schwarzbach, Andrea Jung (equal&nbsp;contribution)</p>
+      <p class="gist">On measured UWB ranges, propagating the position uncertainty of the anchors through a grid loses little accuracy when NLOS links enter the initialization, unlike a closed-form&nbsp;method.</p>
+    </div>
+    <div class="work-body" data-fold-body>
+      <div class="split">
+        <div class="card-text">
+          <p><strong>Question.</strong> Does grid-based uncertainty propagation keep the collaborative self-calibration of a UWB network accurate on measured ranges in a mixed LOS and NLOS environment, also when NLOS links enter its&nbsp;initialization?</p>
+          <p class="data-note">12 UWB nodes ranging as a full mesh in an industrial hall, with total-station ground truth. The static sessions of the NLOS deployment of <span class="nobr">UWB-ASC</span> served this study. The paper extends the grid-based Bayesian formulation of the IPIN&nbsp;2022&nbsp;paper.</p>
+          <ul class="findings">
+            <li>Under LOS initialization the probabilistic grid-based positioning (PGP) reaches median errors of 0.34–0.68&nbsp;m, with 66–92% of the estimates&nbsp;below&nbsp;1&nbsp;m.</li>
+            <li>With NLOS links in the initialization triangle, PGP keeps median errors of 0.62–0.99&nbsp;m. The closed-form (CF) baseline reaches median errors of 1.48–2.43&nbsp;m, with outliers beyond&nbsp;30&nbsp;m.</li>
+            <li>PGP keeps full positioning availability whatever the initialization, while the availability of single nodes under the CF baseline drops to zero or a few percent in some&nbsp;configurations.</li>
+          </ul>
+        </div>
+        <div class="card-media">
+          <figure>
+            <div class="paper-fig"><img src="assets/fig/jispin-fig1-grid-propagation.webp" width="700" height="534" loading="lazy" alt="Probability grid of an anchor position near the lower left, with the true anchor as a green star and the estimate as a red dot. Weighted range circles radiate from the grid cells towards a target, drawn as a green triangle, instead of a single circle from a point estimate. A colour bar gives the position probability density."></div>
+            <figcaption>Grid-based uncertainty propagation for collaborative self-calibration: Anchor probability distribution generates multiple weighted measurement hypotheses (radiating lines) rather than single point-estimate constraints, preserving spatial uncertainty information for reliable localization. <span class="credit">JISPIN paper, Fig.&nbsp;1,&nbsp;CC&nbsp;BY&nbsp;4.0.</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    <div class="table-scroll">
+      <table class="results">
+        <caption>Positioning error across four initialization configurations, three of the columns of Table&nbsp;III of the paper. Conf. 1 and 2 start from line-of-sight triangles, Conf. 3 and 4 from triangles with two NLOS links&nbsp;of&nbsp;three.</caption>
+        <thead><tr><th scope="col">Configuration</th><th scope="col">Method</th><th scope="col" class="num">Median (m)</th><th scope="col" class="num">p95 (m)</th><th scope="col" class="num">below 1&nbsp;m (%)</th></tr></thead>
+        <tbody>
+          <tr><th scope="row" rowspan="2">Conf. 1 (LOS)</th><td>PGP</td><td class="num">0.68</td><td class="num">2.00</td><td class="num">66.1</td></tr>
+          <tr><td>CF</td><td class="num">0.47</td><td class="num">7.59</td><td class="num">77.2</td></tr>
+          <tr><th scope="row" rowspan="2">Conf. 2 (LOS)</th><td>PGP</td><td class="num">0.34</td><td class="num">1.12</td><td class="num">91.6</td></tr>
+          <tr><td>CF</td><td class="num">0.40</td><td class="num">1.84</td><td class="num">79.4</td></tr>
+          <tr><th scope="row" rowspan="2">Conf. 3 (NLOS)</th><td>PGP</td><td class="num">0.62</td><td class="num">2.05</td><td class="num">73.3</td></tr>
+          <tr><td>CF</td><td class="num">2.43</td><td class="num">7.18</td><td class="num">29.9</td></tr>
+          <tr><th scope="row" rowspan="2">Conf. 4 (NLOS)</th><td>PGP</td><td class="num">0.99</td><td class="num">2.54</td><td class="num">50.3</td></tr>
+          <tr><td>CF</td><td class="num">1.48</td><td class="num">30.35</td><td class="num">45.2</td></tr>
+        </tbody>
+      </table>
+    </div>
+      <p class="links card-links">
+        <a href="https://doi.org/10.1109/JISPIN.2026.3687458" target="_blank" rel="noopener">IEEE Xplore (open access)</a>
+        <a href="https://arxiv.org/abs/2511.10526" target="_blank" rel="noopener">arXiv:2511.10526</a>
+        <a href="#dataset">Static sessions in <span class="nobr">UWB-ASC</span></a>
+        <a href="#cite-jispin">BibTeX</a>
+      </p>
+    </div>
+  </article>
+
+  <article class="work" id="access2026" aria-labelledby="access-h" data-fold>
+    <div class="work-head">
+      <p class="venue"><span class="badge">IEEE Access</span><span class="status">Vol. 14, pp. 51603–51619, 2026 ·&nbsp;open&nbsp;access</span></p>
+      <h3 id="access-h" data-fold-title>Terminology Fragmentation of Infrastructure Calibration in Radio-Based Indoor Positioning: A Systematic&nbsp;Review</h3>
+      <p class="authors">Paul&nbsp;Schwarzbach</p>
+      <p class="gist">A systematic review finds 20 title terms for one operation in 36 papers and recommends self-calibration as the canonical&nbsp;term.</p>
+    </div>
+    <div class="work-body" data-fold-body>
+      <div class="split">
+        <div class="card-text">
+          <p><strong>Questions.</strong> What namespace inconsistencies exist for autonomous reference point surveying across technology domains, and how has the terminology evolved from 2015&nbsp;to&nbsp;2025?</p>
+          <p class="data-note">A systematic review following the Preferred Reporting Items for Systematic Reviews and Meta-Analyses (PRISMA). Its search covers four databases from 2015 to 2025, screening 461 deduplicated records and analyzing 36 included&nbsp;papers.</p>
+          <ul class="findings">
+            <li>The 36 papers use 20 distinct title-level terms for a single operation, with a 70% singleton rate, and 137 unique variants in their full texts. UWB accounts for 31 of the&nbsp;36&nbsp;papers.</li>
+            <li>No convergence has occurred. The share of papers using self-calibration declined from 100% (2015–2017) to 22% (2022–2026) as competing terms&nbsp;proliferated.</li>
+            <li>The review recommends self-calibration as the canonical process term and anchor as the default entity prefix, reflecting the UWB-dominant corpus. Technology-appropriate alternatives such as access point or beacon are equally&nbsp;valid.</li>
+          </ul>
+        </div>
+        <div class="card-media">
+          <figure>
+            <div class="paper-fig"><img src="assets/fig/review-fig4-term-frequency.svg" width="430" height="400" loading="lazy" alt="Horizontal bar chart of the 20 primary title-level terms across the 36 included papers, coloured by prefix family. Self-calibration leads with 9 papers, anchor self-localization follows with 4 and autocalibration with 3, and most other terms occur once. The legend counts 13 papers for the self-calibration family, 6 for self-localization, 11 for auto-star, 4 for collaborative or cooperative, and 2 for other."></div>
+            <figcaption>Primary title-level terms across 36 included papers. Terms are grouped and color-coded by prefix family. <span class="credit">IEEE Access paper, Fig.&nbsp;4,&nbsp;CC&nbsp;BY&nbsp;4.0.</span></figcaption>
+          </figure>
+        </div>
+      </div>
+      <p class="links card-links">
+        <a href="https://doi.org/10.1109/ACCESS.2026.3680224" target="_blank" rel="noopener">IEEE Xplore (open access)</a>
+        <a href="#cite-access">BibTeX</a>
+      </p>
+    </div>
+  </article>
+
+  <article class="work" id="ipin2022" aria-labelledby="ipin-h" data-fold>
+    <div class="work-head">
+      <p class="venue"><span class="badge">IPIN 2022</span><span class="status">12th International Conference on Indoor Positioning and Indoor Navigation, 5–7 September 2022,&nbsp;Beijing</span></p>
+      <h3 id="ipin-h" data-fold-title>Auto-Positioning in Radio-based Localization Systems: A Bayesian&nbsp;Approach</h3>
+      <p class="authors">Andrea Jung, Paul Schwarzbach, Oliver&nbsp;Michler</p>
+      <p class="gist">In simulation, a Bayesian grid filter that propagates the position uncertainties of all nodes reaches a higher positioning accuracy than a closed-form&nbsp;approach.</p>
+    </div>
+    <div class="work-body" data-fold-body>
+      <div class="split">
+        <div class="card-text">
+          <p><strong>Question.</strong> Can a discrete Bayesian method that propagates the position uncertainties of all nodes make auto-positioning robust to multipath errors, outliers and measurement failures, and lower its demands on the availability of observations, compared with a closed-form&nbsp;approach?</p>
+          <p class="data-note">Simulated ranges among 13 nodes, 1,000 epochs per scenario, in three scenarios from LOS noise only to frequent&nbsp;outliers.</p>
+          <ul class="findings">
+            <li>The collaborative grid positioning (CGP), a multi-dimensional histogram filter, reaches at least 58% higher positioning accuracy than the closed-form&nbsp;baseline.</li>
+            <li>With Gaussian LOS ranges, the node RMSE is 0.17&nbsp;m for CGP against 0.41&nbsp;m for the closed&nbsp;form.</li>
+            <li>With multipath errors, outliers and measurement failures in scenario III, the RMSE is 0.93&nbsp;m for CGP against 6.99&nbsp;m for the closed&nbsp;form.</li>
+          </ul>
+        </div>
+        <div class="card-media">
+          <figure>
+            <div class="paper-fig pair">
+              <div><img src="assets/fig/ipin2022-fig5a-stationary.webp" width="338" height="317" loading="lazy" alt="Heat map of the observation likelihood for a stationary reference node: a sharp ring at the measured range around the node."><span class="sublabel">(a) Stationary</span></div>
+              <div><img src="assets/fig/ipin2022-fig5b-non-stationary.webp" width="338" height="317" loading="lazy" alt="Heat map of the observation likelihood for a non-stationary reference node: the ring widens, since the position uncertainty of the reference node enters the likelihood."><span class="sublabel">(b) Non-stationary</span></div>
+            </div>
+            <figcaption>Observation variance: (a) uncorrelated case with stationary nodes, (b) correlated case for non-stationary nodes. <span class="credit">IPIN 2022 paper, Fig.&nbsp;5, ©&nbsp;2022&nbsp;IEEE.</span></figcaption>
+          </figure>
+        </div>
+      </div>
+      <p class="links card-links">
+        <a href="https://doi.org/10.1109/IPIN54987.2022.9917513" target="_blank" rel="noopener">IEEE Xplore</a>
+        <a href="https://arxiv.org/abs/2207.08503" target="_blank" rel="noopener">arXiv:2207.08503</a>
+        <a href="#cite-ipin">BibTeX</a>
+      </p>
+    </div>
+  </article>
+</section>
+
+<section class="wrap section" id="dataset" aria-labelledby="dataset-h">
+  <h2 id="dataset-h">Dataset:&nbsp;<span class="nobr">UWB-ASC</span></h2>
+  <div class="deploy">
+    <figure class="map-figure">
+      <div class="map-controls">
+        <div class="tabs deploy-tabs" role="tablist" aria-label="Deployment" hidden>
+          <button type="button" role="tab" id="tab-los" aria-controls="panel-los" aria-selected="true">LOS deployment</button>
+          <button type="button" role="tab" id="tab-nlos" aria-controls="panel-nlos" aria-selected="false" tabindex="-1">NLOS deployment</button>
+        </div>
+        <ul class="layers" role="group" aria-label="Show or hide layers" hidden>
+          <li><button type="button" data-layer="nlos" aria-pressed="true">pairs labeled&nbsp;NLOS</button></li>
+          <li><button type="button" data-layer="poses" data-for="set_b" aria-pressed="true">logged&nbsp;tag&nbsp;poses</button></li>
+          <li><button type="button" data-layer="markers" data-for="set_a" aria-pressed="true">markers of the&nbsp;roving&nbsp;tag</button></li>
+          <li><button type="button" data-layer="refs" aria-pressed="true">control and reference&nbsp;points</button></li>
+        </ul>
+      </div>
+<!-- DEPLOYMENTS:START -->
+<div class="map-wrap deploy-panel" id="panel-los" role="tabpanel" aria-labelledby="tab-los" data-set="set_b">
+<p class="panel-title">LOS deployment <span class="sub-id">set_b</span></p>
+<svg class="deploymap" viewBox="16.48 -62.45 18.64 23.16" role="img" aria-labelledby="dm-los-title dm-los-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="dm-los-title">UWB-ASC, LOS deployment, layout from the survey and the field labels</title>
+<desc id="dm-los-desc">Surveyed nodes, control points and pairs labeled NLOS of the LOS deployment of UWB-ASC 1.0.0 in its own survey frame, with the logged tag poses of the walks s01 and s02. The node table beside the map lists the same positions.</desc>
+<rect class="dm-bg" x="16.48" y="-62.45" width="18.64" height="23.16"/>
+<g class="dm-grid" aria-hidden="true">
+<path d="M20 -62.45V-40.33"/>
+<path d="M25 -62.45V-40.33"/>
+<path d="M30 -62.45V-40.33"/>
+<path d="M35 -62.45V-40.33"/>
+<path d="M16.48 -45H35.11"/>
+<path d="M16.48 -50H35.11"/>
+<path d="M16.48 -55H35.11"/>
+<path d="M16.48 -60H35.11"/>
+</g>
+<g class="dm-layer dm-poses" data-tip="Logged tag poses of the walks s01 and s02 (DD98, motion capture), every third pose"><title>Logged tag poses of the walks s01 and s02 (DD98, motion capture), every third pose</title><path d="M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.32h0M20.93 -54.33h0M20.93 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.94 -54.31h0M20.94 -54.31h0M20.94 -54.31h0M20.94 -54.31h0M20.93 -54.31h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.93 -54.32h0M20.93 -54.33h0M20.92 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.93 -54.33h0M20.93 -54.33h0M20.93 -54.33h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.33h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M20.92 -54.32h0M22.43 -55.75h0M22.44 -55.76h0M22.45 -55.76h0M22.46 -55.77h0M22.47 -55.78h0M22.48 -55.78h0M22.49 -55.79h0M22.51 -55.79h0M22.52 -55.79h0M22.53 -55.8h0M22.54 -55.8h0M22.55 -55.81h0M22.56 -55.81h0M22.58 -55.81h0M22.59 -55.81h0M22.61 -55.81h0M22.62 -55.81h0M22.64 -55.82h0M22.65 -55.82h0M22.67 -55.82h0M22.68 -55.82h0M22.7 -55.82h0M22.72 -55.82h0M22.74 -55.83h0M22.76 -55.83h0M22.77 -55.83h0M22.79 -55.83h0M22.81 -55.84h0M22.82 -55.84h0M22.84 -55.84h0M22.85 -55.85h0M22.87 -55.85h0M22.88 -55.85h0M22.9 -55.85h0M22.91 -55.86h0M22.92 -55.86h0M22.94 -55.86h0M22.95 -55.87h0M22.96 -55.87h0M22.97 -55.87h0M22.99 -55.87h0M23 -55.88h0M23.01 -55.88h0M23.02 -55.88h0M23.03 -55.88h0M23.04 -55.89h0M23.06 -55.89h0M23.07 -55.89h0M23.08 -55.9h0M23.09 -55.9h0M23.11 -55.91h0M23.12 -55.91h0M23.14 -55.92h0M23.15 -55.92h0M23.17 -55.93h0M23.18 -55.93h0M23.19 -55.94h0M23.21 -55.95h0M23.22 -55.95h0M23.23 -55.96h0M23.24 -55.96h0M23.26 -55.97h0M26.7 -57.5h0M26.71 -57.51h0M26.72 -57.51h0M26.73 -57.52h0M26.74 -57.52h0M26.75 -57.53h0M26.76 -57.53h0M26.77 -57.54h0M26.78 -57.54h0M26.79 -57.55h0M26.8 -57.55h0M26.81 -57.56h0M26.82 -57.56h0M26.83 -57.57h0M26.84 -57.55h0M26.85 -57.55h0M26.87 -57.57h0M26.88 -57.58h0M26.89 -57.58h0M26.9 -57.59h0M26.91 -57.59h0M26.92 -57.59h0M26.93 -57.6h0M26.94 -57.6h0M26.95 -57.6h0M26.96 -57.6h0M26.97 -57.6h0M26.98 -57.6h0M27 -57.61h0M27.01 -57.61h0M27.02 -57.61h0M27.03 -57.61h0M27.04 -57.61h0M27.05 -57.61h0M27.07 -57.62h0M27.08 -57.62h0M27.09 -57.62h0M27.11 -57.62h0M27.12 -57.62h0M27.14 -57.62h0M27.15 -57.62h0M27.17 -57.62h0M27.18 -57.62h0M27.2 -57.62h0M27.22 -57.62h0M27.23 -57.62h0M27.24 -57.62h0M27.26 -57.61h0M27.27 -57.61h0M29.34 -55.03h0M29.35 -55.02h0M29.36 -55.01h0M29.37 -54.99h0M29.37 -54.98h0M29.38 -54.97h0M29.38 -54.96h0M29.38 -54.95h0M29.38 -54.93h0M29.39 -54.92h0M29.39 -54.9h0M29.39 -54.89h0M29.39 -54.88h0M29.39 -54.87h0M29.39 -54.86h0M29.39 -54.85h0M29.39 -54.84h0M29.39 -54.83h0M29.39 -54.82h0M29.39 -54.81h0M29.39 -54.8h0M29.39 -54.79h0M29.4 -54.78h0M29.4 -54.78h0M29.4 -54.77h0M29.4 -54.76h0M29.41 -54.75h0M29.41 -54.75h0M29.41 -54.74h0M29.41 -54.74h0M29.42 -54.73h0M29.42 -54.73h0M29.42 -54.73h0M29.42 -54.72h0M29.43 -54.72h0M29.43 -54.72h0M29.43 -54.71h0M29.43 -54.71h0M29.44 -54.71h0M29.44 -54.7h0M29.44 -54.7h0M29.44 -54.7h0M29.45 -54.7h0M29.45 -54.69h0M29.45 -54.69h0M29.45 -54.69h0M29.45 -54.69h0M29.45 -54.69h0M29.46 -54.69h0M29.46 -54.69h0M29.46 -54.69h0M29.46 -54.68h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.65h0M29.48 -54.65h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.48 -54.66h0M29.74 -54.18h0M29.75 -54.17h0M29.75 -54.15h0M29.76 -54.14h0M29.76 -54.12h0M29.77 -54.1h0M29.77 -54.09h0M29.78 -54.07h0M29.78 -54.05h0M29.78 -54.04h0M29.78 -54.02h0M29.79 -54h0M29.79 -53.99h0M29.79 -53.97h0M29.8 -53.96h0M29.8 -53.94h0M29.8 -53.93h0M29.8 -53.91h0M29.81 -53.9h0M29.81 -53.89h0M29.81 -53.88h0M29.81 -53.87h0M29.81 -53.86h0M29.82 -53.85h0M29.79 -53.75h0M29.82 -53.82h0M29.82 -53.81h0M29.82 -53.8h0M29.82 -53.79h0M29.83 -53.78h0M29.83 -53.77h0M29.83 -53.76h0M29.84 -53.75h0M29.84 -53.74h0M29.84 -53.73h0M29.84 -53.71h0M29.85 -53.7h0M29.85 -53.69h0M29.85 -53.67h0M29.86 -53.66h0M29.86 -53.64h0M29.86 -53.63h0M27.78 -50.98h0M27.77 -50.97h0M27.76 -50.97h0M27.74 -50.96h0M27.73 -50.95h0M27.72 -50.95h0M27.71 -50.94h0M27.7 -50.94h0M27.69 -50.93h0M27.68 -50.92h0M27.67 -50.91h0M27.65 -50.91h0M27.64 -50.9h0M27.63 -50.9h0M27.61 -50.89h0M27.6 -50.88h0M27.59 -50.88h0M27.57 -50.87h0M27.56 -50.86h0M27.55 -50.85h0M27.53 -50.85h0M27.52 -50.84h0M27.51 -50.83h0M27.5 -50.82h0M27.48 -50.82h0M27.47 -50.81h0M27.46 -50.8h0M27.45 -50.8h0M27.44 -50.8h0M27.42 -50.79h0M27.41 -50.79h0M27.41 -50.79h0M27.4 -50.78h0M27.39 -50.78h0M27.37 -50.78h0M27.36 -50.77h0M27.35 -50.77h0M27.34 -50.77h0M27.33 -50.76h0M27.32 -50.76h0M27.31 -50.76h0M27.29 -50.75h0M27.28 -50.75h0M27.27 -50.75h0M27.26 -50.75h0M27.24 -50.75h0M27.23 -50.75h0M27.21 -50.74h0M27.2 -50.74h0M27.18 -50.74h0M27.17 -50.74h0M27.15 -50.74h0M27.13 -50.73h0M27.12 -50.73h0M26.15 -53.32h0M26.15 -53.32h0M26.15 -53.32h0M26.15 -53.33h0M26.15 -53.33h0M26.14 -53.33h0M26.14 -53.33h0M26.14 -53.33h0M26.14 -53.34h0M26.14 -53.34h0M26.13 -53.34h0M26.13 -53.34h0M26.13 -53.34h0M26.13 -53.33h0M26.13 -53.33h0M26.12 -53.33h0M26.12 -53.33h0M26.12 -53.33h0M26.12 -53.33h0M26.12 -53.34h0M26.11 -53.34h0M26.11 -53.34h0M26.11 -53.34h0M26.11 -53.34h0M26.1 -53.34h0M26.1 -53.34h0M26.1 -53.34h0M26.1 -53.34h0M26.09 -53.34h0M26.09 -53.35h0M26.09 -53.35h0M26.09 -53.35h0M26.09 -53.35h0M26.09 -53.35h0M26.09 -53.35h0M26.09 -53.35h0M26.09 -53.35h0M26.09 -53.35h0M26.09 -53.35h0M26.09 -53.35h0M26.08 -53.35h0M26.09 -53.36h0M26.09 -53.36h0M26.09 -53.36h0M26.09 -53.36h0M26.09 -53.37h0M26.09 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.08 -53.37h0M26.07 -53.37h0M26.07 -53.37h0M26.07 -53.37h0M26.07 -53.37h0M26.07 -53.37h0M26.07 -53.37h0M26.07 -53.36h0M26.07 -53.36h0M26.07 -53.36h0M26.07 -53.36h0M26.07 -53.36h0M26.06 -53.36h0M26.06 -53.35h0M26.06 -53.35h0M26.05 -53.35h0M26.05 -53.35h0M26.05 -53.35h0M26.04 -53.34h0M26.03 -53.34h0M26.03 -53.34h0M26.02 -53.34h0M26.01 -53.34h0M26.01 -53.34h0M26 -53.33h0M25.99 -53.33h0M25.98 -53.33h0M25.97 -53.32h0M25.96 -53.32h0M25.95 -53.31h0M25.94 -53.31h0M25.93 -53.31h0M25.92 -53.3h0M23.67 -54.91h0M23.68 -54.92h0M23.69 -54.93h0M23.7 -54.94h0M23.71 -54.94h0M23.72 -54.95h0M23.73 -54.96h0M23.74 -54.97h0M23.75 -54.98h0M23.76 -54.98h0M23.77 -54.99h0M23.78 -55h0M23.79 -55.01h0M23.8 -55.02h0M23.81 -55.03h0M23.83 -55.04h0M23.84 -55.04h0M23.85 -55.05h0M23.87 -55.06h0M26.33 -49.68h0M26.33 -49.68h0M26.33 -49.68h0M26.32 -49.68h0M26.32 -49.68h0M26.32 -49.68h0M26.32 -49.68h0M26.32 -49.68h0M26.32 -49.67h0M26.31 -49.67h0M26.31 -49.67h0M26.31 -49.67h0M26.31 -49.67h0M26.3 -49.67h0M26.3 -49.67h0M26.29 -49.67h0M26.29 -49.67h0M26.28 -49.67h0M26.28 -49.67h0M26.27 -49.67h0M26.27 -49.67h0M26.26 -49.66h0M26.26 -49.66h0M26.25 -49.66h0M26.24 -49.65h0M26.23 -49.65h0M26.23 -49.64h0M26.22 -49.64h0M26.21 -49.63h0M26.21 -49.63h0M26.2 -49.62h0M26.19 -49.61h0M26.18 -49.61h0M26.17 -49.6h0M26.16 -49.59h0M26.15 -49.58h0M26.14 -49.58h0M26.13 -49.57h0M26.12 -49.56h0M26.11 -49.55h0M26.1 -49.54h0M26.09 -49.53h0M26.08 -49.52h0M26.07 -49.51h0M26.06 -49.5h0M26.05 -49.49h0M26.04 -49.48h0M26.03 -49.47h0M26.02 -49.46h0M26.01 -49.45h0M26 -49.44h0M25.99 -49.43h0M25.98 -49.42h0M25.97 -49.41h0M25.95 -49.4h0M25.94 -49.38h0M25.93 -49.37h0M25.92 -49.36h0M25.91 -49.35h0M25.9 -49.34h0M25.89 -49.33h0M25.87 -49.32h0M25.86 -49.31h0M25.85 -49.3h0M25.84 -49.29h0M25.82 -49.28h0M25.81 -49.27h0M25.8 -49.26h0M25.78 -49.25h0M25.77 -49.24h0M25.75 -49.23h0M25.74 -49.22h0M25.72 -49.2h0M25.71 -49.19h0M25.69 -49.18h0M25.68 -49.17h0M25.66 -49.15h0M25.64 -49.14h0M25.63 -49.13h0M25.62 -49.12h0M25.6 -49.11h0M25.59 -49.09h0M25.57 -49.08h0M25.56 -49.07h0M25.54 -49.06h0M25.53 -49.05h0M25.52 -49.04h0M25.51 -49.03h0M25.5 -49.02h0M25.48 -49.01h0M25.47 -48.99h0M25.46 -48.99h0M25.45 -48.97h0M25.44 -48.96h0M25.43 -48.95h0M25.42 -48.94h0M25.4 -48.93h0M25.39 -48.91h0M25.38 -48.9h0M25.37 -48.89h0M25.35 -48.88h0M25.34 -48.86h0M25.33 -48.85h0M25.32 -48.84h0M25.3 -48.82h0M25.3 -48.81h0M25.28 -48.79h0M25.27 -48.78h0M25.26 -48.77h0M25.26 -48.76h0M25.25 -48.74h0M25.23 -48.73h0M25.22 -48.72h0M25.21 -48.72h0M25.2 -48.7h0M25.19 -48.7h0M25.18 -48.69h0M25.16 -48.68h0M25.15 -48.66h0M25.14 -48.65h0M25.13 -48.64h0M25.11 -48.63h0M25.1 -48.62h0M25.09 -48.61h0M25.07 -48.6h0M25.06 -48.59h0M25.05 -48.59h0M25.03 -48.58h0M25.02 -48.56h0M25 -48.55h0M24.99 -48.54h0M24.97 -48.53h0M24.96 -48.52h0M24.94 -48.51h0M24.92 -48.5h0M24.91 -48.49h0M24.89 -48.47h0M24.87 -48.46h0M24.86 -48.45h0M24.84 -48.44h0M24.83 -48.43h0M24.81 -48.42h0M24.8 -48.41h0M24.78 -48.4h0M24.77 -48.39h0M24.76 -48.38h0M24.74 -48.37h0M24.73 -48.36h0M24.72 -48.35h0M24.71 -48.34h0M24.69 -48.33h0M24.68 -48.32h0M24.67 -48.31h0M24.65 -48.3h0M24.64 -48.29h0M24.62 -48.28h0M24.61 -48.27h0M24.59 -48.26h0M24.57 -48.25h0M24.56 -48.24h0M24.54 -48.23h0M24.52 -48.22h0M24.51 -48.21h0M24.49 -48.2h0M24.47 -48.19h0M24.46 -48.18h0M24.44 -48.16h0M24.42 -48.15h0M24.41 -48.14h0M24.39 -48.13h0M24.38 -48.12h0M24.36 -48.11h0M24.35 -48.1h0M24.33 -48.09h0M24.32 -48.09h0M24.3 -48.08h0M24.29 -48.07h0M24.27 -48.06h0M24.25 -48.05h0M24.24 -48.04h0M24.22 -48.04h0M24.2 -48.03h0M24.18 -48.02h0M24.16 -48.01h0M24.14 -48.01h0M24.13 -48h0M24.11 -47.99h0M24.09 -47.98h0M24.07 -47.97h0M24.05 -47.96h0M24.02 -47.95h0M24 -47.94h0M23.98 -47.93h0M23.96 -47.92h0M23.94 -47.91h0M23.92 -47.9h0M23.9 -47.89h0M23.89 -47.88h0M23.87 -47.87h0M23.85 -47.87h0M23.83 -47.86h0M23.82 -47.85h0M23.8 -47.84h0M23.78 -47.83h0M23.76 -47.82h0M23.75 -47.81h0M23.73 -47.81h0M23.7 -47.8h0M23.68 -47.79h0M23.66 -47.79h0M23.64 -47.78h0M23.62 -47.77h0M23.6 -47.76h0M23.58 -47.75h0M23.56 -47.74h0M23.54 -47.73h0M23.53 -47.72h0M23.51 -47.71h0M23.49 -47.71h0M23.48 -47.69h0M23.46 -47.69h0M23.43 -47.68h0M23.42 -47.67h0M23.4 -47.66h0M23.38 -47.65h0M23.36 -47.65h0M23.34 -47.64h0M23.33 -47.63h0M23.31 -47.62h0M22.33 -46.96h0M22.31 -46.95h0M22.3 -46.93h0M22.29 -46.92h0M22.27 -46.91h0M22.26 -46.9h0M22.24 -46.88h0M22.23 -46.87h0M22.22 -46.86h0M22.2 -46.85h0M22.19 -46.83h0M22.17 -46.82h0M22.15 -46.8h0M22.13 -46.79h0M22.11 -46.78h0M22.09 -46.76h0M22.07 -46.75h0M22.05 -46.73h0M22.03 -46.71h0M22.01 -46.7h0M21.99 -46.68h0M21.97 -46.67h0M21.95 -46.65h0M21.93 -46.64h0M21.92 -46.62h0M21.9 -46.61h0M21.88 -46.6h0M21.87 -46.58h0M21.85 -46.57h0M21.84 -46.55h0M21.83 -46.54h0M21.81 -46.52h0M21.8 -46.51h0M21.78 -46.49h0M21.77 -46.48h0M21.75 -46.47h0M21.74 -46.45h0M21.73 -46.44h0M21.71 -46.43h0M21.69 -46.41h0M21.68 -46.4h0M21.66 -46.39h0M21.64 -46.37h0M21.63 -46.36h0M21.61 -46.34h0M21.59 -46.33h0M21.58 -46.31h0M21.56 -46.3h0M21.55 -46.28h0M21.53 -46.27h0M21.51 -46.26h0M21.5 -46.24h0M21.49 -46.23h0M21.47 -46.22h0M21.46 -46.21h0M21.45 -46.19h0M21.44 -46.18h0M21.42 -46.17h0M21.41 -46.15h0M21.4 -46.14h0M21.39 -46.13h0M21.37 -46.11h0M21.36 -46.1h0M21.35 -46.09h0M21.33 -46.08h0M21.32 -46.06h0M21.3 -46.05h0M21.29 -46.03h0M21.27 -46.02h0M21.26 -46.01h0M21.24 -45.99h0M21.23 -45.98h0M21.21 -45.96h0M21.2 -45.95h0M21.18 -45.94h0M21.17 -45.92h0M21.16 -45.91h0M21.14 -45.89h0M21.13 -45.88h0M21.12 -45.86h0M21.11 -45.85h0M21.09 -45.84h0M21.08 -45.82h0M21.07 -45.81h0M21.06 -45.79h0M21.06 -45.78h0M21.05 -45.77h0M21.04 -45.75h0M21.03 -45.74h0M21.02 -45.73h0M21.01 -45.71h0M21.01 -45.7h0M21 -45.68h0M20.99 -45.67h0M20.99 -45.66h0M20.98 -45.65h0M20.97 -45.63h0M20.97 -45.62h0M20.96 -45.6h0M20.96 -45.59h0M20.95 -45.58h0M20.94 -45.56h0M20.94 -45.55h0M20.93 -45.53h0M20.92 -45.52h0M20.92 -45.5h0M19.28 -43.99h0M19.28 -43.99h0M19.28 -44h0M19.29 -44h0M19.29 -44.01h0M19.29 -44.02h0M19.29 -44.02h0M19.29 -44.03h0M19.3 -44.03h0M19.3 -44.04h0M19.3 -44.05h0M19.31 -44.05h0M19.31 -44.06h0M19.31 -44.07h0M19.32 -44.08h0M19.32 -44.09h0M19.32 -44.1h0M19.33 -44.1h0M19.33 -44.11h0M19.34 -44.12h0M19.34 -44.13h0M19.35 -44.13h0M19.35 -44.14h0M19.36 -44.15h0M19.36 -44.15h0M19.37 -44.16h0M19.37 -44.16h0M19.37 -44.17h0M19.38 -44.18h0M19.38 -44.18h0M19.39 -44.19h0M19.39 -44.19h0M19.39 -44.2h0M19.4 -44.2h0M19.4 -44.21h0M19.4 -44.21h0M19.41 -44.22h0M19.41 -44.22h0M19.41 -44.23h0M19.41 -44.23h0M19.41 -44.24h0M19.41 -44.24h0M19.42 -44.25h0M19.42 -44.25h0M19.42 -44.26h0M19.42 -44.26h0M19.42 -44.27h0M19.42 -44.27h0M19.42 -44.28h0M19.42 -44.28h0M19.42 -44.29h0M19.42 -44.29h0M19.42 -44.3h0M19.42 -44.3h0M19.42 -44.31h0M19.42 -44.32h0M19.42 -44.32h0M19.42 -44.33h0M19.43 -44.34h0M19.43 -44.35h0M19.43 -44.35h0M19.44 -44.36h0M19.44 -44.37h0M19.44 -44.37h0M19.45 -44.38h0M19.45 -44.38h0M19.46 -44.39h0M19.46 -44.39h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M19.61 -44.48h0M20.28 -45.01h0M20.3 -45.02h0M20.31 -45.03h0M20.32 -45.04h0M20.34 -45.04h0M20.35 -45.05h0M20.36 -45.06h0M20.37 -45.06h0M20.39 -45.07h0M20.4 -45.08h0M20.41 -45.09h0M20.42 -45.09h0M20.44 -45.1h0M20.45 -45.11h0M20.46 -45.12h0M20.48 -45.13h0M20.49 -45.14h0M20.51 -45.15h0M20.52 -45.16h0M20.53 -45.17h0M20.55 -45.18h0M20.56 -45.19h0M20.58 -45.2h0M20.59 -45.21h0M20.61 -45.22h0M20.62 -45.23h0M20.64 -45.24h0M20.65 -45.25h0M20.66 -45.26h0M20.68 -45.27h0M20.69 -45.28h0M20.7 -45.29h0M20.72 -45.3h0M20.73 -45.3h0M20.74 -45.31h0M20.76 -45.32h0M20.77 -45.33h0M20.78 -45.34h0M20.8 -45.35h0M20.81 -45.36h0M20.82 -45.37h0M20.84 -45.37h0M20.85 -45.38h0M20.86 -45.39h0M20.88 -45.4h0M20.89 -45.4h0M20.9 -45.41h0M20.91 -45.42h0M20.93 -45.43h0M20.94 -45.44h0M20.96 -45.44h0M20.98 -45.45h0M20.99 -45.46h0M21.01 -45.47h0M21.03 -45.48h0M21.05 -45.49h0M21.07 -45.5h0M21.09 -45.51h0M21.11 -45.52h0M21.12 -45.53h0M21.14 -45.54h0M21.16 -45.55h0M21.18 -45.55h0M21.2 -45.56h0M21.21 -45.57h0M21.23 -45.58h0M21.25 -45.59h0M21.26 -45.6h0M21.27 -45.61h0M21.29 -45.62h0M21.3 -45.63h0M21.31 -45.64h0M21.33 -45.65h0M21.34 -45.66h0M21.35 -45.67h0M21.37 -45.68h0M21.38 -45.69h0M21.39 -45.7h0M24.52 -49.8h0M24.52 -49.82h0M24.52 -49.84h0M24.53 -49.86h0M24.53 -49.89h0M24.54 -49.91h0M24.54 -49.93h0M24.54 -49.95h0M24.55 -49.97h0M24.55 -49.99h0M24.55 -50.01h0M24.56 -50.03h0M24.56 -50.05h0M24.56 -50.06h0M24.56 -50.08h0M24.56 -50.1h0M24.56 -50.12h0M24.57 -50.14h0M24.57 -50.15h0M24.57 -50.17h0M24.57 -50.19h0M24.57 -50.21h0M24.57 -50.22h0M24.57 -50.24h0M24.56 -50.26h0M24.56 -50.28h0M24.56 -50.29h0M24.56 -50.31h0M24.56 -50.33h0M24.56 -50.35h0M24.56 -50.37h0M24.55 -50.38h0M24.55 -50.4h0M24.55 -50.42h0M24.55 -50.44h0M24.55 -50.46h0M24.54 -50.48h0M24.54 -50.5h0M24.54 -50.52h0M24.54 -50.53h0M24.53 -50.55h0M24.53 -50.57h0M24.53 -50.59h0M24.53 -50.61h0M24.52 -50.63h0M24.52 -50.65h0M24.52 -50.66h0M24.52 -50.68h0M24.52 -50.7h0M24.52 -50.72h0M24.52 -50.73h0M24.52 -50.75h0M24.52 -50.77h0M24.52 -50.79h0M24.52 -50.8h0M24.52 -50.82h0M24.52 -50.84h0M24.52 -50.86h0M24.52 -50.88h0M24.53 -50.9h0M24.53 -50.92h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M24.22 -53.89h0M23.83 -54.94h0M23.82 -54.96h0M23.82 -54.97h0M23.82 -54.98h0M23.81 -55h0M23.81 -55.01h0M23.81 -55.02h0M23.81 -55.03h0M23.81 -55.04h0M23.81 -55.05h0M23.82 -55.06h0M23.82 -55.07h0M23.82 -55.08h0M23.82 -55.09h0M23.82 -55.1h0M23.82 -55.11h0M23.83 -55.12h0M23.83 -55.12h0M23.83 -55.13h0M23.84 -55.14h0M23.84 -55.15h0M23.84 -55.16h0M23.85 -55.17h0M23.85 -55.18h0M23.86 -55.19h0M23.87 -55.21h0M23.87 -55.22h0M23.88 -55.23h0M23.89 -55.25h0M23.9 -55.26h0M23.91 -55.28h0M23.91 -55.29h0M23.92 -55.31h0M23.93 -55.32h0M23.94 -55.34h0M23.95 -55.35h0M23.97 -55.37h0M23.97 -55.38h0M23.98 -55.4h0M23.99 -55.41h0M24 -55.42h0M24.01 -55.44h0M24.02 -55.45h0M24.02 -55.46h0M24.02 -55.47h0M24.03 -55.48h0M24.04 -55.48h0M24.05 -55.49h0M24.05 -55.5h0M24.06 -55.51h0M24.07 -55.52h0M24.08 -55.53h0M24.08 -55.54h0M24.09 -55.55h0M24.1 -55.55h0M24.11 -55.56h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M28.9 -55.46h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.74 -46.16h0M19.75 -46.16h0M19.75 -46.16h0M19.75 -46.16h0M19.75 -46.16h0M19.75 -46.16h0M19.76 -46.15h0M19.76 -46.15h0M19.76 -46.15h0M19.76 -46.15h0M19.77 -46.15h0M19.77 -46.15h0M19.77 -46.14h0M19.77 -46.14h0M19.77 -46.14h0M19.78 -46.14h0M19.78 -46.14h0M19.78 -46.13h0M19.79 -46.13h0M19.79 -46.13h0M19.79 -46.13h0M19.8 -46.13h0M19.81 -46.13h0M19.81 -46.14h0M20.21 -43.63h0M20.21 -43.61h0M20.2 -43.6h0M20.19 -43.58h0M20.19 -43.57h0M20.18 -43.55h0M20.17 -43.54h0M20.17 -43.52h0M20.16 -43.51h0M20.15 -43.49h0M20.14 -43.47h0M20.14 -43.46h0M20.13 -43.44h0M20.12 -43.43h0M20.12 -43.41h0M20.11 -43.4h0M20.1 -43.38h0M20.09 -43.37h0M20.09 -43.36h0M20.08 -43.34h0M20.07 -43.33h0M20.06 -43.32h0M20.05 -43.31h0M20.04 -43.3h0M20.02 -43.29h0M20.01 -43.28h0M20 -43.27h0M19.99 -43.27h0M19.98 -43.26h0M19.97 -43.25h0M19.96 -43.24h0M19.94 -43.23h0M19.93 -43.22h0M19.91 -43.21h0M19.9 -43.2h0M19.88 -43.19h0M19.87 -43.18h0M19.85 -43.17h0M19.83 -43.16h0M19.82 -43.15h0M19.8 -43.15h0M19.78 -43.14h0M19.76 -43.13h0M19.75 -43.12h0M19.73 -43.12h0M19.72 -43.11h0M19.7 -43.11h0M19.69 -43.1h0M19.67 -43.1h0M19.66 -43.1h0M19.65 -43.1h0M19.64 -43.1h0M19.62 -43.1h0M19.61 -43.1h0M19.6 -43.1h0M19.59 -43.1h0M19.58 -43.1h0M20.41 -45.54h0M20.43 -45.56h0M20.45 -45.57h0M20.48 -45.58h0M20.5 -45.59h0M20.52 -45.61h0M20.54 -45.62h0M20.56 -45.63h0M20.59 -45.65h0M20.61 -45.66h0M20.63 -45.67h0M20.65 -45.69h0M20.67 -45.7h0M20.69 -45.71h0M20.71 -45.72h0M20.73 -45.74h0M20.75 -45.75h0M20.77 -45.76h0M20.79 -45.78h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.37 -57.31h0M26.36 -57.31h0M26.36 -57.31h0M26.36 -57.31h0M26.36 -57.31h0M26.35 -57.31h0M26.35 -57.31h0M26.35 -57.31h0M26.35 -57.31h0M26.34 -57.31h0M26.34 -57.31h0M26.34 -57.31h0M26.34 -57.31h0M26.33 -57.31h0M26.33 -57.31h0M26.33 -57.31h0M26.32 -57.31h0M26.32 -57.31h0M26.32 -57.31h0M26.32 -57.31h0M26.31 -57.31h0M26.31 -57.3h0M26.3 -57.3h0M26.3 -57.3h0M26.3 -57.3h0M26.29 -57.3h0M26.29 -57.3h0M26.29 -57.31h0M26.28 -57.31h0M26.28 -57.31h0M26.28 -57.31h0M26.28 -57.31h0M26.27 -57.31h0M26.27 -57.31h0M26.27 -57.31h0M26.27 -57.31h0M26.26 -57.32h0M26.26 -57.32h0M26.26 -57.32h0M26.26 -57.32h0M26.25 -57.32h0M26.25 -57.32h0M26.24 -57.32h0M26.24 -57.32h0M26.24 -57.33h0M26.23 -57.33h0M26.23 -57.33h0M26.22 -57.33h0M26.22 -57.33h0M26.22 -57.34h0M26.21 -57.34h0M26.21 -57.34h0M26.21 -57.34h0M26.2 -57.35h0M26.2 -57.35h0M26.2 -57.36h0M26.19 -57.36h0M26.19 -57.37h0M26.19 -57.37h0M26.19 -57.38h0M26.18 -57.38h0M26.18 -57.39h0M26.18 -57.4h0M26.18 -57.4h0M26.18 -57.41h0M26.18 -57.41h0M26.18 -57.42h0M26.18 -57.42h0M26.18 -57.43h0M26.18 -57.44h0M26.18 -57.44h0M26.18 -57.45h0M26.18 -57.46h0M26.18 -57.47h0M26.18 -57.47h0M26.19 -57.48h0M26.19 -57.49h0M26.19 -57.5h0M26.2 -57.5h0M26.21 -57.51h0M26.21 -57.52h0M26.22 -57.52h0M26.23 -57.53h0M26.23 -57.54h0M26.24 -57.55h0M26.25 -57.56h0M26.25 -57.57h0M26.26 -57.58h0M26.27 -57.59h0M26.28 -57.6h0M26.29 -57.62h0M26.3 -57.63h0M26.31 -57.64h0M26.32 -57.65h0M26.34 -57.66h0M26.35 -57.67h0M26.36 -57.68h0M26.38 -57.69h0M26.39 -57.71h0M26.4 -57.72h0M26.42 -57.73h0M26.43 -57.74h0M26.44 -57.75h0M26.45 -57.76h0M26.46 -57.77h0M26.47 -57.78h0M26.48 -57.79h0M26.49 -57.8h0M26.5 -57.81h0M26.51 -57.82h0M26.52 -57.83h0M26.53 -57.84h0M26.53 -57.85h0M26.54 -57.86h0M26.55 -57.88h0M26.56 -57.89h0M26.57 -57.9h0M26.57 -57.91h0M26.58 -57.92h0M26.99 -58.54h0M27 -58.55h0M27.02 -58.56h0M27.03 -58.57h0M27.04 -58.59h0M27.05 -58.6h0M27.07 -58.61h0M27.08 -58.62h0M27.09 -58.63h0M27.1 -58.64h0M27.11 -58.65h0M27.12 -58.66h0M27.13 -58.67h0M27.14 -58.68h0M27.15 -58.69h0M27.15 -58.7h0M27.16 -58.71h0M27.17 -58.72h0M27.17 -58.73h0M27.18 -58.74h0M27.19 -58.74h0M27.19 -58.75h0M27.2 -58.76h0M27.2 -58.77h0M27.21 -58.78h0M27.21 -58.79h0M27.22 -58.8h0M27.23 -58.81h0M27.23 -58.82h0M27.24 -58.83h0M27.25 -58.84h0M27.25 -58.84h0M27.26 -58.85h0M27.26 -58.86h0M27.27 -58.87h0M27.27 -58.88h0M27.28 -58.89h0M27.28 -58.9h0M27.29 -58.91h0M27.29 -58.92h0M27.3 -58.93h0M27.3 -58.94h0M27.31 -58.94h0M27.31 -58.95h0M27.32 -58.96h0M27.33 -58.96h0M27.33 -58.97h0M27.34 -58.98h0M27.35 -58.98h0M27.36 -58.99h0M27.36 -59h0M27.37 -59h0M27.38 -59.01h0M27.39 -59.02h0M27.4 -59.03h0M27.41 -59.04h0M27.41 -59.04h0M27.42 -59.05h0M27.43 -59.05h0M27.44 -59.06h0M27.44 -59.05h0M27.45 -59.06h0M27.46 -59.06h0M27.47 -59.07h0M27.48 -59.07h0M27.49 -59.08h0M27.51 -59.08h0M27.52 -59.09h0M27.53 -59.09h0M27.54 -59.1h0M27.56 -59.1h0M27.57 -59.1h0M27.58 -59.1h0M27.59 -59.11h0M30.61 -52.47h0M30.62 -52.46h0M30.62 -52.45h0M30.62 -52.44h0M30.61 -52.43h0M30.6 -52.43h0M30.6 -52.42h0M30.59 -52.41h0M30.6 -52.39h0M30.59 -52.39h0M30.59 -52.38h0M30.59 -52.37h0M30.58 -52.36h0M30.58 -52.35h0M30.57 -52.34h0M30.57 -52.33h0M30.56 -52.31h0M30.56 -52.3h0M30.55 -52.29h0M30.54 -52.28h0M30.54 -52.27h0M30.53 -52.26h0M30.52 -52.25h0M30.51 -52.23h0M30.5 -52.22h0M30.49 -52.21h0M30.48 -52.19h0M30.47 -52.18h0M30.46 -52.17h0M30.45 -52.16h0M30.44 -52.15h0M30.43 -52.13h0M30.43 -52.12h0M30.42 -52.11h0M30.41 -52.11h0M30.4 -52.1h0M30.39 -52.09h0M30.38 -52.08h0M30.37 -52.08h0M30.36 -52.07h0M30.36 -52.06h0M30.35 -52.06h0M30.34 -52.05h0M30.34 -52.04h0M30.33 -52.04h0M30.33 -52.03h0M30.32 -52.02h0M30.31 -52.02h0M30.31 -52.01h0M30.3 -52h0M30.29 -51.99h0M30.28 -51.98h0M30.28 -51.97h0M30.27 -51.97h0M30.26 -51.96h0M30.25 -51.94h0M30.24 -51.93h0M30.24 -51.92h0M30.23 -51.91h0M30.22 -51.9h0M30.21 -51.89h0M30.2 -51.87h0M30.2 -51.86h0M30.19 -51.85h0M30.18 -51.84h0M30.17 -51.82h0M26.58 -49.38h0M26.57 -49.38h0M26.57 -49.37h0M26.55 -49.37h0M26.54 -49.36h0M26.53 -49.36h0M26.52 -49.35h0M26.51 -49.35h0M26.5 -49.34h0M26.49 -49.33h0M26.48 -49.32h0M26.46 -49.32h0M26.45 -49.31h0M26.44 -49.3h0M26.43 -49.29h0M26.42 -49.28h0M26.4 -49.28h0M26.39 -49.27h0M26.38 -49.26h0M26.38 -49.25h0M26.37 -49.25h0M26.36 -49.24h0M26.36 -49.23h0M26.35 -49.23h0M26.34 -49.22h0M26.34 -49.22h0M26.33 -49.21h0M26.32 -49.21h0M26.31 -49.2h0M26.3 -49.19h0M26.29 -49.19h0M26.29 -49.18h0M26.28 -49.18h0M26.27 -49.17h0M26.26 -49.17h0M26.25 -49.16h0M26.24 -49.16h0M26.23 -49.15h0M26.22 -49.15h0M26.2 -49.14h0M26.19 -49.13h0M26.18 -49.13h0M26.17 -49.12h0M26.16 -49.12h0M26.14 -49.11h0M26.13 -49.1h0M26.11 -49.1h0M26.1 -49.09h0M26.08 -49.08h0M26.07 -49.08h0M26.05 -49.07h0M26.04 -49.07h0M26.03 -49.06h0M26.01 -49.06h0M26 -49.05h0M25.98 -49.04h0M25.97 -49.04h0M25.95 -49.03h0M25.94 -49.03h0M25.93 -49.02h0M25.92 -49.02h0M25.91 -49.02h0M25.9 -49.01h0M25.89 -49.01h0M25.88 -49h0M25.87 -49h0M25.86 -48.99h0M25.85 -48.99h0M25.84 -48.98h0M22.66 -46.4h0M22.65 -46.39h0M22.65 -46.37h0M22.64 -46.36h0M22.63 -46.35h0M22.62 -46.34h0M22.61 -46.33h0M22.6 -46.32h0M22.59 -46.3h0M22.58 -46.29h0M22.57 -46.28h0M22.56 -46.27h0M22.55 -46.26h0M22.54 -46.24h0M22.53 -46.23h0M22.52 -46.22h0M22.51 -46.21h0M22.5 -46.19h0M22.49 -46.18h0M22.48 -46.17h0M22.47 -46.16h0M22.46 -46.15h0M22.45 -46.14h0M22.45 -46.13h0M22.44 -46.12h0M22.43 -46.11h0M22.42 -46.11h0M22.41 -46.1h0M22.41 -46.09h0M22.4 -46.09h0M22.39 -46.08h0M22.38 -46.07h0M22.37 -46.07h0M22.36 -46.06h0M22.35 -46.05h0M22.34 -46.05h0M22.33 -46.04h0M22.32 -46.03h0M22.31 -46.02h0M22.3 -46.02h0M22.29 -46.01h0M22.27 -46h0M22.26 -45.99h0M22.25 -45.98h0M22.23 -45.97h0M22.22 -45.96h0M22.2 -45.95h0M22.19 -45.95h0M22.17 -45.94h0M22.15 -45.93h0M22.14 -45.92h0M22.12 -45.91h0M22.1 -45.9h0M22.08 -45.89h0M22.06 -45.88h0M22.04 -45.87h0M22.03 -45.86h0M22.01 -45.85h0M22 -45.84h0M21.98 -45.83h0M21.97 -45.83h0M21.96 -45.82h0M21.94 -45.81h0M21.93 -45.8h0M21.92 -45.79h0M21.91 -45.79h0M21.9 -45.78h0M21.89 -45.77h0M21.88 -45.76h0M21.87 -45.76h0M21.86 -45.75h0M21.85 -45.74h0M21.84 -45.73h0M21.83 -45.72h0M21.82 -45.71h0M21.81 -45.7h0M21.79 -45.7h0M19.06 -43.62h0M19.05 -43.62h0M19.04 -43.62h0M19.02 -43.62h0M19.01 -43.62h0M19 -43.62h0M18.99 -43.62h0M18.98 -43.61h0M18.96 -43.61h0M18.95 -43.61h0M18.94 -43.61h0M18.93 -43.61h0M18.92 -43.61h0M18.9 -43.61h0M18.89 -43.6h0M18.88 -43.6h0M18.87 -43.6h0M18.86 -43.61h0M18.84 -43.61h0M18.84 -43.61h0M18.83 -43.61h0M18.82 -43.61h0M18.81 -43.61h0M18.8 -43.61h0M18.79 -43.61h0M18.79 -43.61h0M18.78 -43.61h0M18.77 -43.62h0M18.76 -43.62h0M18.75 -43.62h0M18.74 -43.62h0M18.73 -43.62h0M18.73 -43.63h0M18.72 -43.63h0M18.72 -43.64h0M18.71 -43.64h0M18.7 -43.64h0M18.7 -43.65h0M18.69 -43.65h0M18.68 -43.66h0M18.68 -43.67h0M18.67 -43.67h0M18.66 -43.68h0M18.65 -43.68h0M18.65 -43.69h0M18.64 -43.7h0M18.63 -43.71h0M18.62 -43.71h0M18.61 -43.72h0M18.6 -43.73h0M18.59 -43.74h0M18.58 -43.75h0M18.57 -43.76h0M18.56 -43.77h0M18.55 -43.79h0M18.54 -43.8h0M18.53 -43.81h0M18.52 -43.82h0M18.51 -43.84h0M18.5 -43.85h0M18.5 -43.86h0M18.49 -43.87h0M18.48 -43.89h0M18.48 -43.9h0M18.47 -43.91h0M18.47 -43.92h0M18.46 -43.93h0M18.46 -43.94h0M18.45 -43.94h0M18.45 -43.95h0M18.44 -43.96h0M18.44 -43.96h0M18.43 -43.97h0M18.43 -43.98h0M18.42 -43.98h0M18.42 -43.99h0M18.41 -44h0M18.41 -44h0M18.4 -44.01h0M18.4 -44.02h0M18.39 -44.02h0M18.38 -44.03h0M18.38 -44.04h0M18.37 -44.05h0M18.36 -44.05h0M18.36 -44.06h0M20.25 -45.85h0M20.26 -45.85h0M20.27 -45.86h0M20.28 -45.86h0M20.29 -45.87h0M20.3 -45.88h0M20.31 -45.88h0M20.32 -45.89h0M20.33 -45.9h0M20.35 -45.91h0M20.36 -45.91h0M20.37 -45.92h0M20.38 -45.93h0M20.4 -45.94h0M20.41 -45.95h0M20.42 -45.96h0M20.43 -45.97h0M20.45 -45.98h0M20.46 -45.99h0M20.47 -45.99h0M20.48 -46h0M20.49 -46.01h0M20.5 -46.01h0M20.5 -46.02h0M20.51 -46.03h0M20.52 -46.03h0M20.53 -46.04h0M20.53 -46.05h0M20.54 -46.05h0M20.55 -46.06h0M20.56 -46.06h0M20.57 -46.06h0M20.58 -46.07h0M20.59 -46.07h0M20.6 -46.08h0M20.61 -46.08h0M20.62 -46.09h0M20.63 -46.09h0M20.64 -46.1h0M20.65 -46.11h0M20.66 -46.11h0M20.68 -46.12h0M20.69 -46.13h0M20.7 -46.14h0M20.72 -46.14h0M20.73 -46.15h0M20.75 -46.16h0M20.77 -46.17h0M20.78 -46.18h0M20.8 -46.19h0M20.82 -46.2h0M20.84 -46.2h0M20.86 -46.21h0M20.88 -46.22h0M20.89 -46.23h0M20.91 -46.23h0M20.93 -46.24h0M20.94 -46.25h0M20.96 -46.25h0M20.97 -46.26h0M20.98 -46.27h0M21 -46.27h0M21.01 -46.28h0M21.02 -46.28h0M21.03 -46.29h0M21.04 -46.3h0M21.05 -46.3h0M21.06 -46.31h0M21.07 -46.31h0M21.08 -46.32h0M21.09 -46.32h0M21.1 -46.33h0M21.11 -46.34h0M21.12 -46.34h0M21.14 -46.35h0M21.15 -46.36h0M21.16 -46.37h0M21.17 -46.37h0M21.18 -46.38h0M21.2 -46.39h0M21.21 -46.4h0M21.22 -46.41h0M21.23 -46.41h0M21.25 -46.42h0M21.26 -46.43h0M21.28 -46.44h0M21.29 -46.46h0M21.31 -46.47h0M22.2 -50.73h0M22.19 -50.75h0M22.19 -50.76h0M22.19 -50.78h0M22.18 -50.79h0M22.18 -50.8h0M22.17 -50.81h0M22.17 -50.82h0M22.17 -50.84h0M22.16 -50.85h0M22.16 -50.86h0M22.15 -50.87h0M22.14 -50.88h0M22.14 -50.89h0M22.13 -50.91h0M22.13 -50.92h0M22.12 -50.94h0M22.12 -50.95h0M22.11 -50.97h0M22.1 -50.98h0M22.09 -51h0M22.08 -51.01h0M22.07 -51.02h0M22.06 -51.04h0M22.05 -51.06h0M22.04 -51.07h0M22.04 -51.09h0M22.04 -51.13h0M22.01 -51.12h0M22.01 -51.14h0M21.99 -51.15h0M21.98 -51.16h0M21.97 -51.17h0M21.96 -51.19h0M21.96 -51.2h0M21.95 -51.21h0M21.94 -51.22h0M21.94 -51.24h0M21.94 -51.26h0M21.93 -51.27h0M21.92 -51.28h0M21.92 -51.29h0M21.91 -51.31h0M21.9 -51.32h0M21.9 -51.33h0M21.89 -51.34h0M21.88 -51.35h0M21.87 -51.37h0M21.87 -51.38h0M21.86 -51.39h0M21.85 -51.41h0M21.84 -51.42h0M21.83 -51.44h0M21.83 -51.45h0M21.82 -51.47h0M21.81 -51.49h0M21.8 -51.5h0M21.79 -51.52h0M21.78 -51.54h0M21.77 -51.56h0M21.76 -51.58h0M21.75 -51.6h0M21.74 -51.62h0M21.74 -51.64h0M21.73 -51.66h0M21.72 -51.68h0M21.71 -51.69h0M21.71 -51.71h0M21.7 -51.73h0M21.7 -51.74h0M21.69 -51.76h0M21.68 -51.77h0M21.67 -51.79h0M21.67 -51.8h0M21.66 -51.81h0M21.65 -51.82h0M21.64 -51.83h0M21.59 -55.12h0M21.61 -55.12h0M21.63 -55.13h0M21.64 -55.13h0M21.66 -55.13h0M21.68 -55.13h0M21.7 -55.15h0M21.7 -55.15h0M21.71 -55.15h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.63h0M26.89 -53.64h0M26.89 -53.64h0M26.89 -53.64h0M26.89 -53.64h0M26.89 -53.64h0M26.89 -53.64h0M26.89 -53.64h0M26.89 -53.65h0M26.88 -53.65h0M26.88 -53.65h0M26.88 -53.65h0M26.88 -53.65h0M26.89 -53.66h0M26.89 -53.66h0M26.89 -53.66h0M26.89 -53.66h0M26.89 -53.66h0M26.89 -53.66h0M26.89 -53.66h0M26.89 -53.66h0M26.89 -53.67h0M26.89 -53.67h0M26.88 -53.67h0M26.88 -53.67h0M26.88 -53.67h0M26.88 -53.67h0M26.88 -53.67h0M26.88 -53.67h0M26.87 -53.67h0M26.87 -53.67h0M26.87 -53.67h0M26.86 -53.67h0M26.86 -53.67h0M26.86 -53.67h0M26.85 -53.67h0M26.85 -53.67h0M26.85 -53.67h0M26.84 -53.67h0M24.51 -48.4h0M24.51 -48.39h0M24.51 -48.38h0M24.5 -48.37h0M24.5 -48.35h0M24.49 -48.34h0M24.49 -48.33h0M24.48 -48.32h0M24.48 -48.3h0M24.47 -48.29h0M24.47 -48.28h0M24.47 -48.25h0M24.46 -48.24h0M24.45 -48.22h0M24.44 -48.21h0M24.44 -48.2h0M24.43 -48.18h0M24.42 -48.17h0M24.42 -48.15h0M24.41 -48.14h0M24.4 -48.12h0M24.39 -48.11h0M24.39 -48.09h0M24.38 -48.08h0M24.37 -48.06h0M24.36 -48.05h0M24.35 -48.03h0M24.34 -48.01h0M24.33 -48h0M24.32 -47.98h0M24.31 -47.97h0M24.31 -47.95h0M24.3 -47.94h0M24.29 -47.93h0M24.28 -47.92h0M24.28 -47.9h0M24.27 -47.89h0M24.26 -47.88h0M24.26 -47.87h0M24.25 -47.86h0M24.25 -47.85h0M24.24 -47.83h0M24.24 -47.82h0M24.23 -47.81h0M24.23 -47.8h0M24.22 -47.79h0M24.22 -47.77h0M24.21 -47.76h0M24.2 -47.75h0M24.2 -47.74h0M24.19 -47.72h0M24.19 -47.71h0M24.18 -47.69h0M24.17 -47.68h0M24.17 -47.67h0M24.16 -47.65h0M24.16 -47.64h0M24.15 -47.62h0M24.15 -47.6h0M24.14 -47.59h0M24.14 -47.57h0M24.13 -47.56h0M24.13 -47.54h0M24.09 -46.89h0M24.09 -46.9h0M24.09 -46.9h0M24.11 -46.92h0M24.11 -46.92h0M24.1 -46.92h0M24.1 -46.92h0M24.1 -46.92h0M24.1 -46.93h0M24.1 -46.93h0M24.1 -46.93h0M24.1 -46.94h0M24.1 -46.94h0M24.1 -46.95h0M24.1 -46.95h0M24.1 -46.96h0M24.1 -46.96h0M24.1 -46.97h0M24.1 -46.97h0M24.1 -46.97h0M24.1 -46.98h0M24.1 -46.98h0M24.11 -46.98h0M24.11 -46.99h0M24.11 -46.99h0M24.12 -47h0M24.12 -47h0M24.13 -47.01h0M24.14 -47.01h0M24.14 -47.02h0M24.15 -47.02h0M24.16 -47.03h0M24.16 -47.03h0M24.17 -47.04h0M24.18 -47.04h0M24.19 -47.05h0M24.2 -47.05h0M24.21 -47.06h0M24.23 -47.06h0M24.24 -47.07h0M24.25 -47.07h0M24.26 -47.08h0M24.28 -47.08h0M24.29 -47.09h0M24.3 -47.1h0M24.32 -47.1h0M24.33 -47.11h0M24.34 -47.11h0M24.36 -47.12h0M24.37 -47.12h0M24.38 -47.13h0M24.39 -47.13h0M24.4 -47.14h0M24.42 -47.14h0M24.43 -47.15h0M24.44 -47.15h0M28.78 -50.26h0M28.8 -50.27h0M28.81 -50.28h0M28.83 -50.3h0M28.85 -50.31h0M28.86 -50.32h0M28.93 -50.43h0M28.95 -50.43h0M28.96 -50.44h0M28.97 -50.45h0M28.99 -50.46h0M29 -50.47h0M29.01 -50.48h0M29.02 -50.48h0M29.04 -50.49h0M29.05 -50.5h0M29.06 -50.51h0M29.07 -50.52h0M29.08 -50.53h0M29.09 -50.54h0M29.1 -50.55h0M29.12 -50.56h0M29.13 -50.57h0M29.14 -50.58h0M29.15 -50.59h0M29.17 -50.6h0M29.18 -50.62h0M29.2 -50.6h0M29.21 -50.61h0M29.22 -50.65h0M29.23 -50.66h0M29.25 -50.67h0M29.26 -50.68h0M29.28 -50.69h0M29.29 -50.71h0M29.31 -50.72h0M29.32 -50.73h0M29.33 -50.74h0M29.35 -50.75h0M29.36 -50.76h0M29.37 -50.77h0M29.39 -50.77h0M29.4 -50.78h0M29.41 -50.79h0M29.42 -50.79h0M29.43 -50.8h0M29.44 -50.81h0M29.45 -50.82h0M29.46 -50.83h0M29.47 -50.84h0M29.48 -50.85h0M29.5 -50.86h0M29.51 -50.87h0M29.52 -50.88h0M29.54 -50.88h0M29.55 -50.9h0M29.57 -50.9h0M29.58 -50.92h0M29.6 -50.93h0M29.62 -50.94h0M29.64 -50.94h0M29.65 -50.96h0M29.67 -50.96h0M29.69 -50.97h0M29.71 -50.98h0M29.73 -50.99h0M29.75 -51h0M29.77 -51.01h0M29.78 -51.01h0M29.8 -51.02h0M29.81 -51.03h0M29.83 -51.04h0M29.85 -51.05h0M29.86 -51.06h0M29.88 -51.07h0M28.33 -53.07h0M28.31 -53.07h0M28.3 -53.08h0M28.28 -53.08h0M28.27 -53.08h0M28.26 -53.08h0M28.25 -53.09h0M28.23 -53.09h0M28.22 -53.09h0M28.21 -53.09h0M28.2 -53.09h0M28.18 -53.1h0M28.17 -53.1h0M28.16 -53.1h0M28.15 -53.11h0M28.13 -53.11h0M28.12 -53.11h0M28.1 -53.12h0M28.09 -53.12h0M28.07 -53.13h0M28.06 -53.13h0M28.04 -53.14h0M28.02 -53.15h0M28 -53.15h0M27.99 -53.16h0M27.97 -53.17h0M27.95 -53.17h0M27.93 -53.18h0M27.91 -53.19h0M27.89 -53.2h0M27.88 -53.21h0M27.86 -53.21h0M27.84 -53.22h0M27.82 -53.23h0M27.8 -53.24h0M27.79 -53.24h0M27.77 -53.25h0M27.76 -53.26h0M27.75 -53.26h0M27.73 -53.27h0M27.72 -53.28h0M27.71 -53.28h0M27.69 -53.28h0M27.68 -53.29h0M27.67 -53.29h0M27.66 -53.29h0M27.65 -53.29h0M27.63 -53.3h0M27.62 -53.3h0M27.61 -53.3h0M27.59 -53.31h0M27.58 -53.31h0M27.57 -53.32h0M27.55 -53.32h0M27.54 -53.32h0M27.52 -53.33h0M27.51 -53.33h0M27.49 -53.33h0M27.47 -53.34h0M27.45 -53.34h0M27.44 -53.34h0M27.42 -53.34h0M27.4 -53.35h0M27.38 -53.35h0M27.36 -53.35h0M27.34 -53.35h0M27.32 -53.35h0M27.31 -53.36h0M22.78 -54.01h0M22.77 -54.01h0M22.75 -54.01h0M22.74 -54.02h0M22.72 -54.02h0M22.7 -54.02h0M22.68 -54.02h0M22.67 -54.03h0M22.65 -54.03h0M22.63 -54.03h0M22.61 -54.04h0M22.59 -54.04h0M22.57 -54.04h0M22.56 -54.05h0M22.54 -54.05h0M22.52 -54.05h0M22.5 -54.06h0M22.49 -54.06h0M22.47 -54.06h0M22.45 -54.07h0M22.44 -54.07h0M22.42 -54.07h0M22.41 -54.07h0M22.4 -54.08h0M22.39 -54.08h0M22.37 -54.08h0M22.36 -54.08h0M22.35 -54.08h0M22.34 -54.08h0M22.32 -54.08h0M22.31 -54.08h0M22.29 -54.08h0M22.28 -54.08h0M22.27 -54.08h0M22.25 -54.08h0M22.24 -54.08h0M22.23 -54.08h0M22.21 -54.08h0M22.19 -54.08h0M22.18 -54.08h0M22.16 -54.08h0M22.14 -54.07h0M22.13 -54.07h0M22.11 -54.07h0M22.1 -54.07h0M22.08 -54.07h0M22.07 -54.07h0M22.05 -54.07h0M22.03 -54.07h0M22.02 -54.07h0M22 -54.06h0M21.99 -54.06h0M21.97 -54.06h0M21.96 -54.06h0M21.95 -54.06h0M21.93 -54.06h0M21.92 -54.06h0M21.9 -54.06h0M21.89 -54.06h0M21.88 -54.06h0M21.87 -54.06h0M21.85 -54.06h0M21.84 -54.07h0M21.83 -54.07h0M21.82 -54.07h0M21.8 -54.07h0M21.79 -54.08h0M21.77 -54.08h0M21.76 -54.08h0M21.74 -54.09h0M21.73 -54.09h0M21.71 -54.09h0M21.7 -54.09h0M21.69 -54.1h0M21.67 -54.11h0M21.65 -54.11h0M21.63 -54.12h0M21.62 -54.12h0M21.6 -54.13h0M21.59 -54.13h0M21.57 -54.14h0M24.51 -55.61h0M24.52 -55.62h0M24.54 -55.62h0M24.55 -55.63h0M24.56 -55.64h0M24.58 -55.64h0M24.59 -55.65h0M24.6 -55.65h0M24.61 -55.66h0M24.63 -55.67h0M24.64 -55.67h0M24.66 -55.68h0M24.67 -55.69h0M24.69 -55.69h0M24.7 -55.7h0M24.72 -55.71h0M24.73 -55.72h0M24.75 -55.73h0M24.76 -55.74h0M24.78 -55.75h0M24.8 -55.76h0M24.81 -55.77h0M24.83 -55.79h0M24.85 -55.8h0M24.87 -55.81h0M24.88 -55.83h0M24.89 -55.84h0M24.91 -55.85h0M24.92 -55.86h0M24.93 -55.87h0M24.94 -55.88h0M24.96 -55.89h0M24.97 -55.9h0M24.98 -55.91h0M24.99 -55.92h0M25 -55.92h0M25.01 -55.93h0M25.02 -55.94h0M25.04 -55.95h0M25.05 -55.95h0M25.06 -55.96h0M25.07 -55.97h0M25.08 -55.97h0M25.1 -55.98h0M25.11 -55.99h0M25.13 -56h0M25.14 -56.01h0M25.16 -56.02h0M25.18 -56.03h0M25.19 -56.03h0M25.21 -56.04h0M25.23 -56.05h0M25.25 -56.06h0M25.27 -56.07h0M25.29 -56.09h0M25.31 -56.1h0M25.33 -56.11h0M25.35 -56.12h0M25.37 -56.13h0M25.39 -56.13h0M25.41 -56.14h0M25.43 -56.15h0M25.44 -56.16h0M25.46 -56.16h0M25.47 -56.17h0M25.49 -56.18h0M25.5 -56.18h0M25.51 -56.19h0M29.47 -54.95h0M29.48 -54.93h0M29.49 -54.91h0M29.49 -54.89h0M29.5 -54.87h0M29.5 -54.86h0M29.51 -54.84h0M29.51 -54.83h0M29.52 -54.81h0M29.52 -54.8h0M29.53 -54.78h0M29.53 -54.77h0M29.54 -54.76h0M29.54 -54.74h0M29.55 -54.73h0M29.56 -54.72h0M29.56 -54.71h0M29.57 -54.69h0M29.58 -54.68h0M29.58 -54.67h0M29.59 -54.65h0M29.6 -54.64h0M29.6 -54.62h0M29.61 -54.6h0M29.62 -54.59h0M29.62 -54.57h0M29.63 -54.56h0M29.64 -54.54h0M29.65 -54.52h0M29.66 -54.51h0M29.67 -54.49h0M29.68 -54.47h0M29.69 -54.46h0M29.7 -54.44h0M29.71 -54.43h0M29.72 -54.41h0M29.72 -54.4h0M29.73 -54.39h0M29.74 -54.38h0M29.74 -54.36h0M29.75 -54.35h0M29.76 -54.33h0M29.76 -54.32h0M29.77 -54.31h0M29.78 -54.29h0M29.78 -54.28h0M29.79 -54.27h0M29.79 -54.25h0M29.8 -54.24h0M29.81 -54.22h0M29.81 -54.21h0M29.82 -54.19h0M29.83 -54.18h0M29.83 -54.16h0M29.84 -54.15h0M29.85 -54.13h0M29.85 -54.11h0M29.86 -54.1h0M29.86 -54.08h0M29.87 -54.06h0M29.87 -54.04h0M29.88 -54.02h0M29.88 -54h0M29.89 -53.98h0M29.89 -53.96h0M29.9 -53.95h0M29.9 -53.93h0M29.91 -53.91h0M29.91 -53.89h0M29.91 -53.88h0M29.92 -53.86h0M29.92 -53.85h0M29.92 -53.83h0M29.93 -53.82h0M29.93 -53.81h0M29.93 -53.79h0M29.94 -53.78h0M29.94 -53.77h0M29.94 -53.75h0M29.95 -53.74h0M29.95 -53.72h0M26.09 -50.01h0M26.07 -50h0M26.05 -50h0M26.04 -49.99h0M26.02 -49.99h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M19.48 -45.12h0M20.94 -45.61h0M21.04 -45.61h0M20.97 -45.65h0M21 -45.66h0M21.01 -45.67h0M21.03 -45.68h0M21.05 -45.69h0M21.07 -45.69h0M21.09 -45.7h0M21.11 -45.71h0M21.13 -45.72h0M21.14 -45.73h0M21.16 -45.74h0M21.17 -45.75h0M21.19 -45.75h0M21.21 -45.76h0M21.22 -45.77h0M21.23 -45.78h0M21.24 -45.78h0M21.26 -45.79h0M21.27 -45.8h0M21.28 -45.81h0M21.29 -45.82h0M21.3 -45.82h0M21.31 -45.83h0M21.33 -45.84h0M21.34 -45.85h0M21.36 -45.86h0M21.37 -45.87h0M21.38 -45.88h0M21.4 -45.89h0M21.41 -45.9h0M21.42 -45.91h0M21.44 -45.92h0M21.45 -45.93h0M21.47 -45.94h0M21.48 -45.96h0M21.5 -45.97h0M21.51 -45.98h0M21.53 -46h0M21.54 -46.01h0M21.55 -46.02h0M21.56 -46.03h0M21.58 -46.05h0M21.59 -46.06h0M21.6 -46.07h0M21.61 -46.08h0M21.62 -46.09h0M21.63 -46.1h0M21.64 -46.11h0M21.65 -46.12h0M21.66 -46.13h0M21.67 -46.14h0M24.09 -49.44h0M24.1 -49.46h0M24.11 -49.47h0M24.12 -49.48h0M24.13 -49.5h0M24.14 -49.51h0M24.15 -49.52h0M24.16 -49.54h0M24.17 -49.55h0M24.17 -49.56h0M24.18 -49.58h0M24.19 -49.59h0M24.2 -49.6h0M24.21 -49.62h0M24.22 -49.63h0M24.22 -49.64h0M24.23 -49.65h0M24.24 -49.67h0M24.25 -49.68h0M24.25 -49.7h0M24.26 -49.71h0M24.27 -49.73h0M24.28 -49.74h0M24.29 -49.76h0M24.3 -49.77h0M24.3 -49.79h0M24.31 -49.8h0M24.32 -49.82h0M24.33 -49.84h0M24.34 -49.86h0M24.34 -49.87h0M24.35 -49.89h0M24.36 -49.91h0M24.36 -49.92h0M24.37 -49.93h0M24.37 -49.95h0M24.38 -49.96h0M24.39 -49.97h0M24.39 -49.98h0M24.4 -50h0M24.41 -50.01h0M24.41 -50.02h0M24.42 -50.03h0M24.43 -50.05h0M24.44 -50.06h0M24.45 -50.07h0M24.45 -50.08h0M24.46 -50.1h0M26.64 -52.77h0M26.65 -52.78h0M26.66 -52.8h0M26.66 -52.82h0M26.67 -52.84h0M26.67 -52.85h0M26.68 -52.87h0M26.68 -52.88h0M26.69 -52.9h0M26.69 -52.91h0M26.69 -52.92h0M26.7 -52.93h0M26.7 -52.95h0M26.7 -52.96h0M26.71 -52.98h0M26.71 -52.99h0M26.71 -53h0M26.71 -53.02h0M26.71 -53.03h0M26.71 -53.05h0M26.71 -53.06h0M26.72 -53.07h0M26.72 -53.09h0M26.72 -53.1h0M26.72 -53.12h0M26.72 -53.13h0M26.72 -53.14h0M26.72 -53.16h0M26.72 -53.17h0M26.72 -53.19h0M26.72 -53.21h0M26.72 -53.22h0M26.73 -53.24h0M26.73 -53.25h0M26.73 -53.26h0M26.73 -53.27h0M26.73 -53.29h0M26.73 -53.3h0M26.74 -53.31h0M26.74 -53.32h0M26.74 -53.33h0M26.74 -53.35h0M26.75 -53.36h0M26.75 -53.37h0M26.75 -53.38h0M26.75 -53.39h0M26.76 -53.4h0M26.76 -53.41h0M26.76 -53.42h0M26.77 -53.43h0M26.77 -53.44h0M26.77 -53.45h0M26.78 -53.45h0M26.78 -53.46h0M26.78 -53.47h0M26.79 -53.47h0M26.79 -53.48h0M26.79 -53.48h0M26.8 -53.48h0M26.8 -53.49h0M26.81 -53.59h0M26.81 -53.58h0M26.81 -53.58h0M26.81 -53.58h0M26.81 -53.58h0M26.81 -53.58h0M26.81 -53.58h0M26.81 -53.58h0M26.81 -53.58h0M26.81 -53.58h0M26.81 -53.58h0M26.81 -53.58h0M26.81 -53.58h0M26.81 -53.58h0M26.81 -53.58h0"/></g>
+<g class="dm-layer dm-nlos">
+<g class="dm-pair" data-tip="4197–4AA4 · pair labeled NLOS"><title>4197–4AA4 · pair labeled NLOS</title><path class="dm-hit" d="M28.35 -61.45Q30.8 -50.7 22.47 -43.48"/><path d="M28.35 -61.45Q30.8 -50.7 22.47 -43.48"/></g>
+<g class="dm-pair" data-tip="4197–D5B4 · pair labeled NLOS"><title>4197–D5B4 · pair labeled NLOS</title><path class="dm-hit" d="M28.35 -61.45Q18.02 -56.56 17.48 -45.14"/><path d="M28.35 -61.45Q18.02 -56.56 17.48 -45.14"/></g>
+<g class="dm-pair" data-tip="4503–5BB6 · pair labeled NLOS"><title>4503–5BB6 · pair labeled NLOS</title><path class="dm-hit" d="M26.79 -46.94Q23.81 -42.99 19.15 -41.33"/><path d="M26.79 -46.94Q23.81 -42.99 19.15 -41.33"/></g>
+<g class="dm-pair" data-tip="4A23–5BB6 · pair labeled NLOS"><title>4A23–5BB6 · pair labeled NLOS</title><path class="dm-hit" d="M34.11 -51.73Q28.19 -44.29 19.15 -41.33"/><path d="M34.11 -51.73Q28.19 -44.29 19.15 -41.33"/></g>
+<g class="dm-pair" data-tip="4AA4–5388 · pair labeled NLOS"><title>4AA4–5388 · pair labeled NLOS</title><path class="dm-hit" d="M22.47 -43.48L23.92 -45.62"/><path d="M22.47 -43.48L23.92 -45.62"/></g>
+<g class="dm-pair" data-tip="4AA4–9911 · pair labeled NLOS"><title>4AA4–9911 · pair labeled NLOS</title><path class="dm-hit" d="M22.47 -43.48Q28.88 -49.54 30.9 -58.13"/><path d="M22.47 -43.48Q28.88 -49.54 30.9 -58.13"/></g>
+<g class="dm-pair" data-tip="5388–5BB6 · pair labeled NLOS"><title>5388–5BB6 · pair labeled NLOS</title><path class="dm-hit" d="M23.92 -45.62L19.15 -41.33"/><path d="M23.92 -45.62L19.15 -41.33"/></g>
+<g class="dm-pair" data-tip="5BB6–8B05 · pair labeled NLOS"><title>5BB6–8B05 · pair labeled NLOS</title><path class="dm-hit" d="M19.15 -41.33L21.23 -56.5"/><path d="M19.15 -41.33L21.23 -56.5"/></g>
+<g class="dm-pair" data-tip="5BB6–D38F · pair labeled NLOS"><title>5BB6–D38F · pair labeled NLOS</title><path class="dm-hit" d="M19.15 -41.33L18.36 -54.84"/><path d="M19.15 -41.33L18.36 -54.84"/></g>
+<g class="dm-pair" data-tip="8AA5–D5B4 · pair labeled NLOS"><title>8AA5–D5B4 · pair labeled NLOS</title><path class="dm-hit" d="M20.98 -47.48L17.48 -45.14"/><path d="M20.98 -47.48L17.48 -45.14"/></g>
+<g class="dm-pair" data-tip="8B05–D5B4 · pair labeled NLOS"><title>8B05–D5B4 · pair labeled NLOS</title><path class="dm-hit" d="M21.23 -56.5L17.48 -45.14"/><path d="M21.23 -56.5L17.48 -45.14"/></g>
+<g class="dm-pair" data-tip="9911–D5B4 · pair labeled NLOS"><title>9911–D5B4 · pair labeled NLOS</title><path class="dm-hit" d="M30.9 -58.13Q22.24 -53.65 17.48 -45.14"/><path d="M30.9 -58.13Q22.24 -53.65 17.48 -45.14"/></g>
+<g class="dm-pair" data-tip="D38F–D5B4 · pair labeled NLOS"><title>D38F–D5B4 · pair labeled NLOS</title><path class="dm-hit" d="M18.36 -54.84L17.48 -45.14"/><path d="M18.36 -54.84L17.48 -45.14"/></g>
+</g>
+<g class="dm-layer dm-refs"><g class="dm-ref" data-tip="GCP-11 · control or reference point · x 31.15 m, y 45.71 m"><title>GCP-11 · control or reference point · x 31.15 m, y 45.71 m</title><circle class="dm-hit" cx="31.15" cy="-45.71" r="0.38"/><polygon points="31.15,-45.91 31.34,-45.59 30.97,-45.59"/></g><g class="dm-ref" data-tip="GCP-08 · control or reference point · x 20.50 m, y 57.39 m"><title>GCP-08 · control or reference point · x 20.50 m, y 57.39 m</title><circle class="dm-hit" cx="20.5" cy="-57.39" r="0.38"/><polygon points="20.5,-57.58 20.68,-57.26 20.32,-57.26"/></g><g class="dm-ref" data-tip="GCP-13 · control or reference point · x 27.80 m, y 60.76 m"><title>GCP-13 · control or reference point · x 27.80 m, y 60.76 m</title><circle class="dm-hit" cx="27.8" cy="-60.76" r="0.38"/><polygon points="27.8,-60.95 27.99,-60.63 27.62,-60.63"/></g><g class="dm-ref" data-tip="3 · control or reference point · x 32.41 m, y 50.71 m"><title>3 · control or reference point · x 32.41 m, y 50.71 m</title><circle class="dm-hit" cx="32.41" cy="-50.71" r="0.38"/><polygon points="32.41,-50.9 32.6,-50.58 32.23,-50.58"/></g><g class="dm-wand" data-tip="WAND-0-0 · origin of the Vicon frame · x 26.87 m, y 53.63 m"><title>WAND-0-0 · origin of the Vicon frame · x 26.87 m, y 53.63 m</title><circle class="dm-hit" cx="26.87" cy="-53.63" r="0.38"/><path d="M26.72 -53.78L27.02 -53.48M26.72 -53.48L27.02 -53.78"/></g></g>
+<g class="dm-nodes"><g class="dm-anchor" data-tip="4197 · anchor · x 28.35 m, y 61.45 m"><title>4197 · anchor · x 28.35 m, y 61.45 m</title><circle class="dm-hit" cx="28.35" cy="-61.45" r="0.38"/><circle cx="28.35" cy="-61.45" r="0.21"/></g><g class="dm-anchor" data-tip="4503 · anchor · x 26.79 m, y 46.94 m"><title>4503 · anchor · x 26.79 m, y 46.94 m</title><circle class="dm-hit" cx="26.79" cy="-46.94" r="0.38"/><circle cx="26.79" cy="-46.94" r="0.21"/></g><g class="dm-prior" data-tip="4A23 · anchor of the prior subset · x 34.11 m, y 51.73 m"><title>4A23 · anchor of the prior subset · x 34.11 m, y 51.73 m</title><circle class="dm-hit" cx="34.11" cy="-51.73" r="0.38"/><polygon points="34.11,-51.98 34.36,-51.73 34.11,-51.49 33.86,-51.73"/></g><g class="dm-anchor" data-tip="4AA4 · anchor · x 22.47 m, y 43.48 m"><title>4AA4 · anchor · x 22.47 m, y 43.48 m</title><circle class="dm-hit" cx="22.47" cy="-43.48" r="0.38"/><circle cx="22.47" cy="-43.48" r="0.21"/></g><g class="dm-anchor" data-tip="5388 · anchor · x 23.92 m, y 45.62 m"><title>5388 · anchor · x 23.92 m, y 45.62 m</title><circle class="dm-hit" cx="23.92" cy="-45.62" r="0.38"/><circle cx="23.92" cy="-45.62" r="0.21"/></g><g class="dm-prior" data-tip="5BB6 · anchor of the prior subset · x 19.15 m, y 41.33 m"><title>5BB6 · anchor of the prior subset · x 19.15 m, y 41.33 m</title><circle class="dm-hit" cx="19.15" cy="-41.33" r="0.38"/><polygon points="19.15,-41.58 19.4,-41.33 19.15,-41.08 18.9,-41.33"/></g><g class="dm-anchor" data-tip="8AA5 · anchor · x 20.98 m, y 47.48 m"><title>8AA5 · anchor · x 20.98 m, y 47.48 m</title><circle class="dm-hit" cx="20.98" cy="-47.48" r="0.38"/><circle cx="20.98" cy="-47.48" r="0.21"/></g><g class="dm-prior" data-tip="8B05 · anchor of the prior subset · x 21.23 m, y 56.50 m"><title>8B05 · anchor of the prior subset · x 21.23 m, y 56.50 m</title><circle class="dm-hit" cx="21.23" cy="-56.5" r="0.38"/><polygon points="21.23,-56.75 21.47,-56.5 21.23,-56.25 20.98,-56.5"/></g><g class="dm-anchor" data-tip="9911 · anchor · x 30.90 m, y 58.13 m"><title>9911 · anchor · x 30.90 m, y 58.13 m</title><circle class="dm-hit" cx="30.9" cy="-58.13" r="0.38"/><circle cx="30.9" cy="-58.13" r="0.21"/></g><g class="dm-anchor" data-tip="D38F · anchor · x 18.36 m, y 54.84 m"><title>D38F · anchor · x 18.36 m, y 54.84 m</title><circle class="dm-hit" cx="18.36" cy="-54.84" r="0.38"/><circle cx="18.36" cy="-54.84" r="0.21"/></g><g class="dm-silent" data-tip="D5B4 · surveyed node that never ranges · x 17.48 m, y 45.14 m"><title>D5B4 · surveyed node that never ranges · x 17.48 m, y 45.14 m</title><circle class="dm-hit" cx="17.48" cy="-45.14" r="0.38"/><circle cx="17.48" cy="-45.14" r="0.21"/></g></g>
+<g class="dm-scale" aria-hidden="true"><path d="M16.96 -39.76h5"/><path d="M16.96 -39.87v0.21M21.96 -39.87v0.21"/><text x="22.17" y="-39.61" style="font-size:0.45px">5 m</text></g>
+</svg>
+<div class="map-tip" role="status" hidden></div>
+</div>
+<div class="map-wrap deploy-panel" id="panel-nlos" role="tabpanel" aria-labelledby="tab-nlos" data-set="set_a">
+<p class="panel-title">NLOS deployment <span class="sub-id">set_a</span></p>
+<svg class="deploymap" viewBox="-28.95 -24.28 43.09 31.4" role="img" aria-labelledby="dm-nlos-title dm-nlos-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="dm-nlos-title">UWB-ASC, NLOS deployment, layout from the survey and the field labels</title>
+<desc id="dm-nlos-desc">Surveyed nodes, control points and pairs labeled NLOS of the NLOS deployment of UWB-ASC 1.0.0 in its own survey frame, with the markers of the roving tag of the quasi-static sessions s01 to s20. The node table beside the map lists the same positions.</desc>
+<rect class="dm-bg" x="-28.95" y="-24.28" width="43.09" height="31.4"/>
+<g class="dm-grid" aria-hidden="true">
+<path d="M-25 -24.28V5.11"/>
+<path d="M-20 -24.28V5.11"/>
+<path d="M-15 -24.28V5.11"/>
+<path d="M-10 -24.28V5.11"/>
+<path d="M-5 -24.28V5.11"/>
+<path d="M0 -24.28V5.11"/>
+<path d="M5 -24.28V5.11"/>
+<path d="M10 -24.28V5.11"/>
+<path d="M-28.95 5H14.15"/>
+<path d="M-28.95 0H14.15"/>
+<path d="M-28.95 -5H14.15"/>
+<path d="M-28.95 -10H14.15"/>
+<path d="M-28.95 -15H14.15"/>
+<path d="M-28.95 -20H14.15"/>
+</g>
+<g class="dm-layer dm-nlos">
+<g class="dm-pair" data-tip="4197–D5B4 · pair labeled NLOS"><title>4197–D5B4 · pair labeled NLOS</title><path class="dm-hit" d="M8.18 3.58Q-1.04 -8.29 -2.21 -23.28"/><path d="M8.18 3.58Q-1.04 -8.29 -2.21 -23.28"/></g>
+<g class="dm-pair" data-tip="4503–5388 · pair labeled NLOS"><title>4503–5388 · pair labeled NLOS</title><path class="dm-hit" d="M7.88 -12.03Q1.9 -19.9 -7.42 -23.17"/><path d="M7.88 -12.03Q1.9 -19.9 -7.42 -23.17"/></g>
+<g class="dm-pair" data-tip="4503–8AA5 · pair labeled NLOS"><title>4503–8AA5 · pair labeled NLOS</title><path class="dm-hit" d="M7.88 -12.03L-15.15 -19.14"/><path d="M7.88 -12.03L-15.15 -19.14"/></g>
+<g class="dm-pair" data-tip="4503–D5B4 · pair labeled NLOS"><title>4503–D5B4 · pair labeled NLOS</title><path class="dm-hit" d="M7.88 -12.03L-2.21 -23.28"/><path d="M7.88 -12.03L-2.21 -23.28"/></g>
+<g class="dm-pair" data-tip="4A23–8AA5 · pair labeled NLOS"><title>4A23–8AA5 · pair labeled NLOS</title><path class="dm-hit" d="M-3.47 3.95L-15.15 -19.14"/><path d="M-3.47 3.95L-15.15 -19.14"/></g>
+<g class="dm-pair" data-tip="4AA4–5388 · pair labeled NLOS"><title>4AA4–5388 · pair labeled NLOS</title><path class="dm-hit" d="M-26.99 -3.37L-7.42 -23.17"/><path d="M-26.99 -3.37L-7.42 -23.17"/></g>
+<g class="dm-pair" data-tip="4AA4–8AA5 · pair labeled NLOS"><title>4AA4–8AA5 · pair labeled NLOS</title><path class="dm-hit" d="M-26.99 -3.37L-15.15 -19.14"/><path d="M-26.99 -3.37L-15.15 -19.14"/></g>
+<g class="dm-pair" data-tip="4AA4–D5B4 · pair labeled NLOS"><title>4AA4–D5B4 · pair labeled NLOS</title><path class="dm-hit" d="M-26.99 -3.37L-2.21 -23.28"/><path d="M-26.99 -3.37L-2.21 -23.28"/></g>
+<g class="dm-pair" data-tip="5388–5BB6 · pair labeled NLOS"><title>5388–5BB6 · pair labeled NLOS</title><path class="dm-hit" d="M-7.42 -23.17Q-21.49 -12.53 -27.37 4.1"/><path d="M-7.42 -23.17Q-21.49 -12.53 -27.37 4.1"/></g>
+<g class="dm-pair" data-tip="5388–8B05 · pair labeled NLOS"><title>5388–8B05 · pair labeled NLOS</title><path class="dm-hit" d="M-7.42 -23.17Q5.74 -18.14 7.49 -4.16"/><path d="M-7.42 -23.17Q5.74 -18.14 7.49 -4.16"/></g>
+<g class="dm-pair" data-tip="5388–9911 · pair labeled NLOS"><title>5388–9911 · pair labeled NLOS</title><path class="dm-hit" d="M-7.42 -23.17Q-15.88 -14.09 -27.95 -11.17"/><path d="M-7.42 -23.17Q-15.88 -14.09 -27.95 -11.17"/></g>
+<g class="dm-pair" data-tip="5388–D38F · pair labeled NLOS"><title>5388–D38F · pair labeled NLOS</title><path class="dm-hit" d="M-7.42 -23.17L-12.01 -11.11"/><path d="M-7.42 -23.17L-12.01 -11.11"/></g>
+<g class="dm-pair" data-tip="5BB6–8AA5 · pair labeled NLOS"><title>5BB6–8AA5 · pair labeled NLOS</title><path class="dm-hit" d="M-27.37 4.1Q-24.75 -9.35 -15.15 -19.14"/><path d="M-27.37 4.1Q-24.75 -9.35 -15.15 -19.14"/></g>
+<g class="dm-pair" data-tip="5BB6–D5B4 · pair labeled NLOS"><title>5BB6–D5B4 · pair labeled NLOS</title><path class="dm-hit" d="M-27.37 4.1Q-18.9 -13.36 -2.21 -23.28"/><path d="M-27.37 4.1Q-18.9 -13.36 -2.21 -23.28"/></g>
+<g class="dm-pair" data-tip="8AA5–9911 · pair labeled NLOS"><title>8AA5–9911 · pair labeled NLOS</title><path class="dm-hit" d="M-15.15 -19.14L-27.95 -11.17"/><path d="M-15.15 -19.14L-27.95 -11.17"/></g>
+<g class="dm-pair" data-tip="8AA5–D38F · pair labeled NLOS"><title>8AA5–D38F · pair labeled NLOS</title><path class="dm-hit" d="M-15.15 -19.14L-12.01 -11.11"/><path d="M-15.15 -19.14L-12.01 -11.11"/></g>
+<g class="dm-pair" data-tip="8AA5–DD98 · pair labeled NLOS"><title>8AA5–DD98 · pair labeled NLOS</title><path class="dm-hit" d="M-15.15 -19.14L-12.35 4.11"/><path d="M-15.15 -19.14L-12.35 4.11"/></g>
+<g class="dm-pair" data-tip="8B05–D5B4 · pair labeled NLOS"><title>8B05–D5B4 · pair labeled NLOS</title><path class="dm-hit" d="M7.49 -4.16Q5.51 -15.17 -2.21 -23.28"/><path d="M7.49 -4.16Q5.51 -15.17 -2.21 -23.28"/></g>
+<g class="dm-pair" data-tip="9911–D5B4 · pair labeled NLOS"><title>9911–D5B4 · pair labeled NLOS</title><path class="dm-hit" d="M-27.95 -11.17Q-11.44 -9.5 -2.21 -23.28"/><path d="M-27.95 -11.17Q-11.44 -9.5 -2.21 -23.28"/></g>
+<g class="dm-pair" data-tip="D38F–D5B4 · pair labeled NLOS"><title>D38F–D5B4 · pair labeled NLOS</title><path class="dm-hit" d="M-12.01 -11.11L-2.21 -23.28"/><path d="M-12.01 -11.11L-2.21 -23.28"/></g>
+</g>
+<g class="dm-layer dm-refs"><g class="dm-ref" data-tip="REFP01 · control or reference point · x 7.60 m, y 8.14 m"><title>REFP01 · control or reference point · x 7.60 m, y 8.14 m</title><circle class="dm-hit" cx="7.6" cy="-8.14" r="0.74"/><polygon points="7.6,-8.51 7.96,-7.89 7.24,-7.89"/></g><g class="dm-ref" data-tip="REFP02 · control or reference point · x 6.72 m, y 0.13 m"><title>REFP02 · control or reference point · x 6.72 m, y 0.13 m</title><circle class="dm-hit" cx="6.72" cy="-0.13" r="0.74"/><polygon points="6.72,-0.51 7.08,0.11 6.37,0.11"/></g><g class="dm-ref" data-tip="REFP03 · control or reference point · x 13.15 m, y -1.42 m"><title>REFP03 · control or reference point · x 13.15 m, y -1.42 m</title><circle class="dm-hit" cx="13.15" cy="1.42" r="0.74"/><polygon points="13.15,1.04 13.51,1.66 12.79,1.66"/></g></g>
+<g class="dm-nodes"><g class="dm-anchor" data-tip="4197 · anchor · x 8.18 m, y -3.58 m"><title>4197 · anchor · x 8.18 m, y -3.58 m</title><circle class="dm-hit" cx="8.18" cy="3.58" r="0.74"/><circle cx="8.18" cy="3.58" r="0.4"/></g><g class="dm-anchor" data-tip="4503 · anchor · x 7.88 m, y 12.03 m"><title>4503 · anchor · x 7.88 m, y 12.03 m</title><circle class="dm-hit" cx="7.88" cy="-12.03" r="0.74"/><circle cx="7.88" cy="-12.03" r="0.4"/></g><g class="dm-prior" data-tip="4A23 · anchor of the prior subset · x -3.47 m, y -3.95 m"><title>4A23 · anchor of the prior subset · x -3.47 m, y -3.95 m</title><circle class="dm-hit" cx="-3.47" cy="3.95" r="0.74"/><polygon points="-3.47,3.47 -2.99,3.95 -3.47,4.43 -3.96,3.95"/></g><g class="dm-anchor" data-tip="4AA4 · anchor · x -26.99 m, y 3.37 m"><title>4AA4 · anchor · x -26.99 m, y 3.37 m</title><circle class="dm-hit" cx="-26.99" cy="-3.37" r="0.74"/><circle cx="-26.99" cy="-3.37" r="0.4"/></g><g class="dm-anchor" data-tip="5388 · anchor · x -7.42 m, y 23.17 m"><title>5388 · anchor · x -7.42 m, y 23.17 m</title><circle class="dm-hit" cx="-7.42" cy="-23.17" r="0.74"/><circle cx="-7.42" cy="-23.17" r="0.4"/></g><g class="dm-prior" data-tip="5BB6 · anchor of the prior subset · x -27.37 m, y -4.10 m"><title>5BB6 · anchor of the prior subset · x -27.37 m, y -4.10 m</title><circle class="dm-hit" cx="-27.37" cy="4.1" r="0.74"/><polygon points="-27.37,3.62 -26.89,4.1 -27.37,4.59 -27.86,4.1"/></g><g class="dm-anchor" data-tip="8AA5 · anchor · x -15.15 m, y 19.14 m"><title>8AA5 · anchor · x -15.15 m, y 19.14 m</title><circle class="dm-hit" cx="-15.15" cy="-19.14" r="0.74"/><circle cx="-15.15" cy="-19.14" r="0.4"/></g><g class="dm-prior" data-tip="8B05 · anchor of the prior subset · roving tag of the sessions s01 to s20 · x 7.49 m, y 4.16 m"><title>8B05 · anchor of the prior subset · roving tag of the sessions s01 to s20 · x 7.49 m, y 4.16 m</title><circle class="dm-hit" cx="7.49" cy="-4.16" r="0.74"/><polygon points="7.49,-4.64 7.97,-4.16 7.49,-3.68 7,-4.16"/></g><g class="dm-anchor" data-tip="9911 · anchor · x -27.95 m, y 11.17 m"><title>9911 · anchor · x -27.95 m, y 11.17 m</title><circle class="dm-hit" cx="-27.95" cy="-11.17" r="0.74"/><circle cx="-27.95" cy="-11.17" r="0.4"/></g><g class="dm-anchor" data-tip="D38F · anchor · x -12.01 m, y 11.11 m"><title>D38F · anchor · x -12.01 m, y 11.11 m</title><circle class="dm-hit" cx="-12.01" cy="-11.11" r="0.74"/><circle cx="-12.01" cy="-11.11" r="0.4"/></g><g class="dm-anchor" data-tip="D5B4 · anchor · x -2.21 m, y 23.28 m"><title>D5B4 · anchor · x -2.21 m, y 23.28 m</title><circle class="dm-hit" cx="-2.21" cy="-23.28" r="0.74"/><circle cx="-2.21" cy="-23.28" r="0.4"/></g><g class="dm-anchor" data-tip="DD98 · anchor · x -12.35 m, y -4.11 m"><title>DD98 · anchor · x -12.35 m, y -4.11 m</title><circle class="dm-hit" cx="-12.35" cy="4.11" r="0.74"/><circle cx="-12.35" cy="4.11" r="0.4"/></g></g>
+<g class="dm-layer dm-markers"><g class="dm-marker" data-tip="P01 · marker of the roving tag · session s01 · x 7.54 m, y 4.16 m"><title>P01 · marker of the roving tag · session s01 · x 7.54 m, y 4.16 m</title><circle class="dm-hit" cx="7.54" cy="-4.16" r="0.74"/><rect x="7.23" y="-4.47" width="0.62" height="0.62"/></g><g class="dm-marker" data-tip="P02 · marker of the roving tag · session s02 · x 4.69 m, y 4.13 m"><title>P02 · marker of the roving tag · session s02 · x 4.69 m, y 4.13 m</title><circle class="dm-hit" cx="4.69" cy="-4.13" r="0.74"/><rect x="4.38" y="-4.44" width="0.62" height="0.62"/></g><g class="dm-marker" data-tip="P03 · marker of the roving tag · session s03 · x 3.31 m, y 1.88 m"><title>P03 · marker of the roving tag · session s03 · x 3.31 m, y 1.88 m</title><circle class="dm-hit" cx="3.31" cy="-1.88" r="0.74"/><rect x="3" y="-2.19" width="0.62" height="0.62"/></g><g class="dm-marker" data-tip="P04 · marker of the roving tag · session s04 · x 3.44 m, y -2.06 m"><title>P04 · marker of the roving tag · session s04 · x 3.44 m, y -2.06 m</title><circle class="dm-hit" cx="3.44" cy="2.06" r="0.74"/><rect x="3.13" y="1.75" width="0.62" height="0.62"/></g><g class="dm-marker" data-tip="P05 · marker of the roving tag · session s05 · x -0.08 m, y -3.67 m"><title>P05 · marker of the roving tag · session s05 · x -0.08 m, y -3.67 m</title><circle class="dm-hit" cx="-0.08" cy="3.67" r="0.74"/><rect x="-0.39" y="3.36" width="0.62" height="0.62"/></g><g class="dm-marker" data-tip="P06 · marker of the roving tag · session s06 · x -3.48 m, y 1.40 m"><title>P06 · marker of the roving tag · session s06 · x -3.48 m, y 1.40 m</title><circle class="dm-hit" cx="-3.48" cy="-1.4" r="0.74"/><rect x="-3.79" y="-1.71" width="0.62" height="0.62"/></g><g class="dm-marker" data-tip="P07 · marker of the roving tag · session s07 · x -3.59 m, y 7.77 m"><title>P07 · marker of the roving tag · session s07 · x -3.59 m, y 7.77 m</title><circle class="dm-hit" cx="-3.59" cy="-7.77" r="0.74"/><rect x="-3.9" y="-8.08" width="0.62" height="0.62"/></g><g class="dm-marker" data-tip="P08 · marker of the roving tag · session s08 · x -3.40 m, y 11.99 m"><title>P08 · marker of the roving tag · session s08 · x -3.40 m, y 11.99 m</title><circle class="dm-hit" cx="-3.4" cy="-11.99" r="0.74"/><rect x="-3.71" y="-12.3" width="0.62" height="0.62"/></g><g class="dm-marker" data-tip="P09 · marker of the roving tag · session s09 · x -3.39 m, y 17.53 m"><title>P09 · marker of the roving tag · session s09 · x -3.39 m, y 17.53 m</title><circle class="dm-hit" cx="-3.39" cy="-17.53" r="0.74"/><rect x="-3.7" y="-17.84" width="0.62" height="0.62"/></g><g class="dm-marker" data-tip="P10 · marker of the roving tag · session s10 · x -6.33 m, y 21.80 m"><title>P10 · marker of the roving tag · session s10 · x -6.33 m, y 21.80 m</title><circle class="dm-hit" cx="-6.33" cy="-21.8" r="0.74"/><rect x="-6.64" y="-22.11" width="0.62" height="0.62"/></g><g class="dm-marker" data-tip="P11 · marker of the roving tag · session s11 · x -11.79 m, y 16.93 m"><title>P11 · marker of the roving tag · session s11 · x -11.79 m, y 16.93 m</title><circle class="dm-hit" cx="-11.79" cy="-16.93" r="0.74"/><rect x="-12.1" y="-17.24" width="0.62" height="0.62"/></g><g class="dm-marker" data-tip="P12 · marker of the roving tag · session s12 · x -13.35 m, y 21.26 m"><title>P12 · marker of the roving tag · session s12 · x -13.35 m, y 21.26 m</title><circle class="dm-hit" cx="-13.35" cy="-21.26" r="0.74"/><rect x="-13.66" y="-21.57" width="0.62" height="0.62"/></g><g class="dm-marker" data-tip="P13 · marker of the roving tag · session s13 · x -12.82 m, y 7.76 m"><title>P13 · marker of the roving tag · session s13 · x -12.82 m, y 7.76 m</title><circle class="dm-hit" cx="-12.82" cy="-7.76" r="0.74"/><rect x="-13.13" y="-8.07" width="0.62" height="0.62"/></g><g class="dm-marker" data-tip="P14 · marker of the roving tag · session s14 · x -16.17 m, y 2.77 m"><title>P14 · marker of the roving tag · session s14 · x -16.17 m, y 2.77 m</title><circle class="dm-hit" cx="-16.17" cy="-2.77" r="0.74"/><rect x="-16.48" y="-3.07" width="0.62" height="0.62"/></g><g class="dm-marker" data-tip="P15 · marker of the roving tag · session s15 · x -19.02 m, y -3.36 m"><title>P15 · marker of the roving tag · session s15 · x -19.02 m, y -3.36 m</title><circle class="dm-hit" cx="-19.02" cy="3.36" r="0.74"/><rect x="-19.33" y="3.05" width="0.62" height="0.62"/></g><g class="dm-marker" data-tip="P16 · marker of the roving tag · session s16 · x -24.20 m, y -3.26 m"><title>P16 · marker of the roving tag · session s16 · x -24.20 m, y -3.26 m</title><circle class="dm-hit" cx="-24.2" cy="3.26" r="0.74"/><rect x="-24.51" y="2.95" width="0.62" height="0.62"/></g><g class="dm-marker" data-tip="P17 · marker of the roving tag · session s17 · x -20.77 m, y 3.66 m"><title>P17 · marker of the roving tag · session s17 · x -20.77 m, y 3.66 m</title><circle class="dm-hit" cx="-20.77" cy="-3.66" r="0.74"/><rect x="-21.08" y="-3.97" width="0.62" height="0.62"/></g><g class="dm-marker" data-tip="P18 · marker of the roving tag · session s18 · x -25.30 m, y 8.06 m"><title>P18 · marker of the roving tag · session s18 · x -25.30 m, y 8.06 m</title><circle class="dm-hit" cx="-25.3" cy="-8.06" r="0.74"/><rect x="-25.6" y="-8.37" width="0.62" height="0.62"/></g><g class="dm-marker" data-tip="P19 · marker of the roving tag · session s19 · x -19.38 m, y 12.32 m"><title>P19 · marker of the roving tag · session s19 · x -19.38 m, y 12.32 m</title><circle class="dm-hit" cx="-19.38" cy="-12.32" r="0.74"/><rect x="-19.69" y="-12.63" width="0.62" height="0.62"/></g><g class="dm-marker" data-tip="P20 · marker of the roving tag · session s20 · x 4.94 m, y 10.07 m"><title>P20 · marker of the roving tag · session s20 · x 4.94 m, y 10.07 m</title><circle class="dm-hit" cx="4.94" cy="-10.07" r="0.74"/><rect x="4.63" y="-10.38" width="0.62" height="0.62"/></g></g>
+<g class="dm-scale" aria-hidden="true"><path d="M-28 6.22h5"/><path d="M-28 6.01v0.4M-23 6.01v0.4"/><text x="-22.6" y="6.52" style="font-size:0.88px">5 m</text></g>
+</svg>
+<div class="map-tip" role="status" hidden></div>
+</div>
+<!-- DEPLOYMENTS:END -->
+      <figcaption>Layout of both deployments. <span class="credit">Interactive form of descriptor Fig.&nbsp;2, drawn from the files of <span class="nobr">UWB-ASC</span>&nbsp;1.0.0.</span></figcaption>
+    </figure>
+    <div class="prose">
+      <p>Anchor self-calibration estimates the positions of fixed nodes of an indoor radio positioning or localization system from observations among the nodes and to mobile devices. The UWB Anchor Self-Calibration Dataset (<span class="nobr">UWB-ASC</span>) is a testing ground for such methods, recorded in one industrial hall in Torgau, Germany, with UWB two-way&nbsp;ranging.</p>
+      <p>In the LOS deployment, 10 anchors range with a walking tag tracked by motion capture. In the NLOS deployment, 12 nodes range among obstructions, and one of them roves over surveyed markers in 20 quasi-static sessions. Both deployments also hold static sessions, and a total station surveyed every&nbsp;fixed&nbsp;node.</p>
+      <p>The HYMN multi-technology dataset comes from the same hall, and <a href="https://paulschwarzbach.github.io/hymn/" target="_blank" rel="noopener">its project page</a> shows photos of&nbsp;the&nbsp;hall.</p>
+      <p class="map-read">Each panel shows one deployment in its own survey frame, drawn from the survey and the field labels, and the LOS panel adds the logged tag poses of the walks s01 and s02. Pointing at a mark shows its identifier and&nbsp;position.</p>
+      <ul class="key" aria-label="Legend">
+        <li><svg class="sw" viewBox="-7 -7 14 14" aria-hidden="true"><circle class="k-los" cx="-2.6" r="3.4"/><circle class="k-nlos" cx="4.6" r="3.4"/></svg>anchor</li>
+        <li><svg class="sw" viewBox="-7 -7 14 14" aria-hidden="true"><polygon class="k-prior-los" points="-2.6,-4.4 1.8,0 -2.6,4.4 -7,0"/><polygon class="k-prior-nlos" points="5,-4.4 9.4,0 5,4.4 0.6,0"/></svg>anchor of the prior&nbsp;subset</li>
+        <li><svg class="sw" viewBox="-7 -7 14 14" aria-hidden="true"><circle class="k-silent" r="4"/></svg>surveyed node that never&nbsp;ranges</li>
+        <li><svg class="sw" viewBox="-7 -7 14 14" aria-hidden="true"><polygon class="k-ref" points="0,-5 4.6,3.4 -4.6,3.4"/></svg>control or reference&nbsp;point</li>
+        <li><svg class="sw" viewBox="-7 -7 14 14" aria-hidden="true"><rect class="k-marker" x="-3.8" y="-3.8" width="7.6" height="7.6"/></svg>marker of the&nbsp;roving&nbsp;tag</li>
+        <li><svg class="sw" viewBox="-7 -7 14 14" aria-hidden="true"><path class="k-wand" d="M-4 -4L4 4M-4 4L4 -4"/></svg>origin of the&nbsp;Vicon&nbsp;frame</li>
+        <li><svg class="sw" viewBox="-7 -7 14 14" aria-hidden="true"><circle class="k-pose" cx="-3" cy="1" r="1.3"/><circle class="k-pose" cx="0.5" cy="-1" r="1.3"/><circle class="k-pose" cx="4" cy="0.5" r="1.3"/></svg>logged&nbsp;tag&nbsp;pose</li>
+        <li><svg class="sw" viewBox="-7 -7 14 14" aria-hidden="true"><path class="k-pair-los" d="M-7 2L0 -3"/><path class="k-pair-nlos" d="M0 4L7 -1"/></svg>pair labeled&nbsp;NLOS</li>
+      </ul>
+      <details class="coords">
+        <summary>Node positions&nbsp;as&nbsp;a&nbsp;table</summary>
+<!-- DEPLOYMENT-TABLE:START -->
+<div class="table-scroll">
+<table class="nodes"><caption>LOS deployment (set_b): surveyed positions from <code>Data/set_b/nodes.yaml</code> of UWB-ASC 1.0.0, in the survey frame of the deployment.</caption>
+<thead><tr><th scope="col">Id</th><th scope="col">Shown as</th><th scope="col" class="num">x (m)</th><th scope="col" class="num">y (m)</th><th scope="col" class="num">z (m)</th></tr></thead><tbody>
+<tr><th scope="row">4A23</th><td>anchor of the prior subset</td><td class="num">34.112</td><td class="num">51.734</td><td class="num">4.557</td></tr>
+<tr><th scope="row">5BB6</th><td>anchor of the prior subset</td><td class="num">19.147</td><td class="num">41.333</td><td class="num">4.553</td></tr>
+<tr><th scope="row">8B05</th><td>anchor of the prior subset</td><td class="num">21.225</td><td class="num">56.497</td><td class="num">4.569</td></tr>
+<tr><th scope="row">4197</th><td>anchor</td><td class="num">28.351</td><td class="num">61.453</td><td class="num">4.567</td></tr>
+<tr><th scope="row">4503</th><td>anchor</td><td class="num">26.785</td><td class="num">46.938</td><td class="num">4.556</td></tr>
+<tr><th scope="row">4AA4</th><td>anchor</td><td class="num">22.467</td><td class="num">43.481</td><td class="num">4.553</td></tr>
+<tr><th scope="row">5388</th><td>anchor</td><td class="num">23.916</td><td class="num">45.618</td><td class="num">4.577</td></tr>
+<tr><th scope="row">8AA5</th><td>anchor</td><td class="num">20.984</td><td class="num">47.476</td><td class="num">4.557</td></tr>
+<tr><th scope="row">9911</th><td>anchor</td><td class="num">30.903</td><td class="num">58.133</td><td class="num">4.563</td></tr>
+<tr><th scope="row">D38F</th><td>anchor</td><td class="num">18.355</td><td class="num">54.839</td><td class="num">4.537</td></tr>
+<tr><th scope="row">D5B4</th><td>surveyed node that never ranges</td><td class="num">17.476</td><td class="num">45.136</td><td class="num">4.553</td></tr>
+<tr><th scope="row">3</th><td>control or reference point</td><td class="num">32.414</td><td class="num">50.706</td><td class="num">3.059</td></tr>
+<tr><th scope="row">GCP-08</th><td>control or reference point</td><td class="num">20.501</td><td class="num">57.389</td><td class="num">2.945</td></tr>
+<tr><th scope="row">GCP-11</th><td>control or reference point</td><td class="num">31.153</td><td class="num">45.714</td><td class="num">1.859</td></tr>
+<tr><th scope="row">GCP-13</th><td>control or reference point</td><td class="num">27.805</td><td class="num">60.757</td><td class="num">2.936</td></tr>
+<tr><th scope="row">WAND-0-0</th><td>origin of the Vicon frame</td><td class="num">26.871</td><td class="num">53.630</td><td class="num">2.927</td></tr>
+</tbody></table></div>
+<div class="table-scroll">
+<table class="nodes"><caption>NLOS deployment (set_a): surveyed positions from <code>Data/set_a/nodes.yaml</code> of UWB-ASC 1.0.0, in the survey frame of the deployment.</caption>
+<thead><tr><th scope="col">Id</th><th scope="col">Shown as</th><th scope="col" class="num">x (m)</th><th scope="col" class="num">y (m)</th><th scope="col" class="num">z (m)</th></tr></thead><tbody>
+<tr><th scope="row">4A23</th><td>anchor of the prior subset</td><td class="num">-3.473</td><td class="num">-3.950</td><td class="num">1.252</td></tr>
+<tr><th scope="row">5BB6</th><td>anchor of the prior subset</td><td class="num">-27.373</td><td class="num">-4.102</td><td class="num">1.289</td></tr>
+<tr><th scope="row">8B05</th><td>anchor of the prior subset</td><td class="num">7.488</td><td class="num">4.160</td><td class="num">1.310</td></tr>
+<tr><th scope="row">4197</th><td>anchor</td><td class="num">8.179</td><td class="num">-3.579</td><td class="num">1.301</td></tr>
+<tr><th scope="row">4503</th><td>anchor</td><td class="num">7.875</td><td class="num">12.034</td><td class="num">1.337</td></tr>
+<tr><th scope="row">4AA4</th><td>anchor</td><td class="num">-26.991</td><td class="num">3.368</td><td class="num">1.293</td></tr>
+<tr><th scope="row">5388</th><td>anchor</td><td class="num">-7.421</td><td class="num">23.169</td><td class="num">1.312</td></tr>
+<tr><th scope="row">8AA5</th><td>anchor</td><td class="num">-15.153</td><td class="num">19.145</td><td class="num">1.312</td></tr>
+<tr><th scope="row">9911</th><td>anchor</td><td class="num">-27.945</td><td class="num">11.167</td><td class="num">1.307</td></tr>
+<tr><th scope="row">D38F</th><td>anchor</td><td class="num">-12.012</td><td class="num">11.105</td><td class="num">1.262</td></tr>
+<tr><th scope="row">D5B4</th><td>anchor</td><td class="num">-2.208</td><td class="num">23.279</td><td class="num">1.234</td></tr>
+<tr><th scope="row">DD98</th><td>anchor</td><td class="num">-12.352</td><td class="num">-4.105</td><td class="num">1.266</td></tr>
+<tr><th scope="row">P01</th><td>marker of the roving tag</td><td class="num">7.542</td><td class="num">4.161</td><td class="num">-0.409</td></tr>
+<tr><th scope="row">P02</th><td>marker of the roving tag</td><td class="num">4.690</td><td class="num">4.131</td><td class="num">-0.431</td></tr>
+<tr><th scope="row">P03</th><td>marker of the roving tag</td><td class="num">3.314</td><td class="num">1.878</td><td class="num">-0.431</td></tr>
+<tr><th scope="row">P04</th><td>marker of the roving tag</td><td class="num">3.440</td><td class="num">-2.061</td><td class="num">-0.448</td></tr>
+<tr><th scope="row">P05</th><td>marker of the roving tag</td><td class="num">-0.080</td><td class="num">-3.670</td><td class="num">-0.438</td></tr>
+<tr><th scope="row">P06</th><td>marker of the roving tag</td><td class="num">-3.485</td><td class="num">1.398</td><td class="num">-0.438</td></tr>
+<tr><th scope="row">P07</th><td>marker of the roving tag</td><td class="num">-3.588</td><td class="num">7.768</td><td class="num">-0.428</td></tr>
+<tr><th scope="row">P08</th><td>marker of the roving tag</td><td class="num">-3.403</td><td class="num">11.990</td><td class="num">-0.444</td></tr>
+<tr><th scope="row">P09</th><td>marker of the roving tag</td><td class="num">-3.389</td><td class="num">17.533</td><td class="num">-0.459</td></tr>
+<tr><th scope="row">P10</th><td>marker of the roving tag</td><td class="num">-6.331</td><td class="num">21.802</td><td class="num">-0.425</td></tr>
+<tr><th scope="row">P11</th><td>marker of the roving tag</td><td class="num">-11.792</td><td class="num">16.931</td><td class="num">-0.443</td></tr>
+<tr><th scope="row">P12</th><td>marker of the roving tag</td><td class="num">-13.346</td><td class="num">21.257</td><td class="num">-0.424</td></tr>
+<tr><th scope="row">P13</th><td>marker of the roving tag</td><td class="num">-12.821</td><td class="num">7.756</td><td class="num">-0.435</td></tr>
+<tr><th scope="row">P14</th><td>marker of the roving tag</td><td class="num">-16.171</td><td class="num">2.765</td><td class="num">-0.430</td></tr>
+<tr><th scope="row">P15</th><td>marker of the roving tag</td><td class="num">-19.021</td><td class="num">-3.357</td><td class="num">-0.437</td></tr>
+<tr><th scope="row">P16</th><td>marker of the roving tag</td><td class="num">-24.205</td><td class="num">-3.263</td><td class="num">-0.434</td></tr>
+<tr><th scope="row">P17</th><td>marker of the roving tag</td><td class="num">-20.766</td><td class="num">3.661</td><td class="num">-0.424</td></tr>
+<tr><th scope="row">P18</th><td>marker of the roving tag</td><td class="num">-25.295</td><td class="num">8.060</td><td class="num">-0.433</td></tr>
+<tr><th scope="row">P19</th><td>marker of the roving tag</td><td class="num">-19.377</td><td class="num">12.316</td><td class="num">-0.452</td></tr>
+<tr><th scope="row">P20</th><td>marker of the roving tag</td><td class="num">4.944</td><td class="num">10.069</td><td class="num">-0.447</td></tr>
+<tr><th scope="row">REFP01</th><td>control or reference point</td><td class="num">7.602</td><td class="num">8.137</td><td class="num">-0.419</td></tr>
+<tr><th scope="row">REFP02</th><td>control or reference point</td><td class="num">6.724</td><td class="num">0.133</td><td class="num">-0.418</td></tr>
+<tr><th scope="row">REFP03</th><td>control or reference point</td><td class="num">13.148</td><td class="num">-1.417</td><td class="num">-1.562</td></tr>
+</tbody></table></div>
+<!-- DEPLOYMENT-TABLE:END -->
+      </details>
+      <p class="actions">
+        <a class="btn btn-primary" href="https://arxiv.org/abs/2611.11579" target="_blank" rel="noopener">Descriptor</a>
+        <a class="btn" href="https://doi.org/10.5281/zenodo.24055896" target="_blank" rel="noopener">Zenodo</a>
+        <a class="btn" href="https://github.com/PaulSchwarzbach/UWB-ASC-dataset" target="_blank" rel="noopener">GitHub</a>
+      </p>
+      <p class="note">The descriptor (Paul Schwarzbach, arXiv:2611.11579) is submitted to IEEE Data&nbsp;Descriptions.</p>
+    </div>
+  </div>
+
+  <div class="cols cols-even">
+    <div class="prose">
+      <h3>Contents</h3>
+      <dl class="contents">
+        <dt>Measured&nbsp;deployments</dt>
+        <dd>Static, quasi-static and walking sessions on one node set under LOS and NLOS propagation, with the surveyed nodes and the motion-capture truth of&nbsp;the&nbsp;walks.</dd>
+        <dt>Range&nbsp;simulator</dt>
+        <dd>A seeded range simulator draws synthetic ranges on the surveyed geometry with adjustable error components, from noise-free ranges to NLOS errors. Its 81 frozen draws in 5 conditions serve as the&nbsp;reference.</dd>
+        <dt>Readers of&nbsp;public&nbsp;data</dt>
+        <dd>Readers convert the ranges among the static nodes of two public UWB datasets, <span class="nobr">TWR-CLOUD-Bern</span> and selfloc, into the same format without&nbsp;redistribution.</dd>
+        <dt>Formats</dt>
+        <dd>All parts share open Parquet and YAML files, in which topology views select the ranges for each class of calibration method. Raw recordings with rebuild scripts, quality reports and field labels of the line of sight complete the&nbsp;dataset.</dd>
+      </dl>
+    </div>
+    <div class="prose">
+      <h3>Scope&nbsp;and&nbsp;limits</h3>
+      <ul class="limits">
+        <li>One hall and one hardware family, the modules of a Qorvo MDEK1001 development kit with the DW1000 chip, whose physical-layer settings were not&nbsp;recorded.</li>
+        <li>The anchors stand at nearly one height, so both layouts are close&nbsp;to&nbsp;planar.</li>
+        <li>No inertial measurements and no channel impulse&nbsp;responses.</li>
+        <li>Untested uses include three-dimensional calibration, methods that fuse inertial data or channel features, and the transfer to other chip&nbsp;generations.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="quickstart">
+    <h3>Quick&nbsp;start</h3>
+    <p>Python 3.10 or newer, no GPU. Install from the repository root and run the&nbsp;smoke&nbsp;test:</p>
+    <div class="code-block">
+<pre data-copy><code>git clone https://github.com/PaulSchwarzbach/UWB-ASC-dataset
+cd UWB-ASC-dataset
+pip install -e "Code/datasets/radiocal[qa,methods]"
+python -B tests/test_smoke.py</code></pre>
+    </div>
+    <p>One session in a&nbsp;few&nbsp;lines:</p>
+    <div class="code-block">
+<pre data-copy><code>import radiocal
+
+g = radiocal.load_session("Data/set_b/s01")   # superset graph of one session
+view = g.apply_mask("fully_meshed")            # anchor-anchor ranges, no priors
+view.edges.head()                              # t, t_raw, seq, from_id, to_id, range_m
+g.nodes                                        # id, role, prior_type, x, y, z, sigma_m</code></pre>
+    </div>
+  </div>
+</section>
+
+<section class="wrap section" id="code" aria-labelledby="code-h">
+  <h2 id="code-h">Code&nbsp;&amp;&nbsp;data</h2>
+  <div class="table-scroll">
+    <table class="artifacts">
+      <caption>Archived artifacts with persistent&nbsp;identifiers.</caption>
+      <thead><tr><th scope="col">Artifact</th><th scope="col">Archive</th><th scope="col">Source</th><th scope="col">Licence</th></tr></thead>
+      <tbody>
+        <tr>
+          <th scope="row">radiocal 1.0.0<span class="sub">reference implementations, result tables, literature record</span></th>
+          <td><a href="https://doi.org/10.5281/zenodo.24134343" target="_blank" rel="noopener">10.5281/zenodo.24134343</a></td>
+          <td><a href="https://github.com/PaulSchwarzbach/radiocal" target="_blank" rel="noopener">PaulSchwarzbach/radiocal</a></td>
+          <td>code MIT, data and result tables CC BY 4.0</td>
+        </tr>
+        <tr>
+          <th scope="row">UWB-ASC 1.0.0<span class="sub">sessions, range simulator, readers of public data</span></th>
+          <td><a href="https://doi.org/10.5281/zenodo.24055896" target="_blank" rel="noopener">10.5281/zenodo.24055896</a></td>
+          <td><a href="https://github.com/PaulSchwarzbach/UWB-ASC-dataset" target="_blank" rel="noopener">PaulSchwarzbach/UWB-ASC-dataset</a></td>
+          <td>data CC BY 4.0, code MIT</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Version DOIs. The concept DOIs <a href="https://doi.org/10.5281/zenodo.24134342" target="_blank" rel="noopener">10.5281/zenodo.24134342</a> (radiocal) and <a href="https://doi.org/10.5281/zenodo.24055895" target="_blank" rel="noopener">10.5281/zenodo.24055895</a> (<span class="nobr">UWB-ASC</span>) resolve to the latest&nbsp;version.</p>
+
+  <div class="cols">
+    <div class="quickstart">
+      <h3>radiocal in&nbsp;a&nbsp;few&nbsp;lines</h3>
+      <p>Python 3.10 or newer, no GPU. The release holds the reference implementations with their driver, the result tables, the record of the literature search of the tutorial, and a copy of the measured sessions&nbsp;of&nbsp;<span class="nobr">UWB-ASC</span>.</p>
+      <div class="code-block">
+<pre data-copy><code>git clone https://github.com/PaulSchwarzbach/radiocal.git
+cd radiocal
+pip install -e "Code/datasets/radiocal[qa,methods]"</code></pre>
+      </div>
+      <div class="code-block">
+<pre data-copy><code>import radiocal
+
+g = radiocal.load_session("Data/set_b/s01")   # superset graph
+view = g.apply_mask("slam_bipartite")          # mobile-only view
+
+view.edges           # DataFrame: t, t_raw, seq, from_id, to_id, range_m
+view.nodes           # DataFrame: id, role, prior_type, x, y, z, sigma_m
+view.symmetrized()   # undirected ranges</code></pre>
+      </div>
+    </div>
+    <figure>
+      <div class="paper-fig"><img src="assets/fig/tutorial-fig13-release.svg" width="520" height="300" loading="lazy" alt="Structure of the release: the UWB-ASC sessions, public recordings and synthetic ranges feed the session graph and its views, which feed the kernels and engines, which feed the evaluation and the result tables. Each box names its folder, and the three lower boxes name the section of the tutorial that explains them."></div>
+      <figcaption>Structure of the release, with the folder of each part and the section that explains it. Dashed inputs are not stored under Data/. <span class="credit">Tutorial,&nbsp;Fig.&nbsp;13.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="wrap section" id="cite" aria-labelledby="cite-h">
+  <h2 id="cite-h">Cite</h2>
+  <p>If you use the tutorial or its code, please cite the tutorial and radiocal. If you use the data, please cite the dataset record and its&nbsp;descriptor.</p>
+  <div class="cite-group">
+    <div class="code-block" id="cite-tutorial">
+<pre data-copy><code>@misc{schwarzbach_selfcal_tutorial_2026,
+  author        = {Schwarzbach, Paul},
+  title         = {A Tutorial on Infrastructure Self-Calibration for
+                   Radio-Based Indoor Positioning},
+  year          = {2026},
+  eprint        = {2611.15503},
+  archivePrefix = {arXiv},
+  primaryClass  = {eess.SP},
+  doi           = {10.48550/arXiv.2611.15503},
+  note          = {Under review}
+}</code></pre>
+    </div>
+    <div class="code-block" id="cite-radiocal">
+<pre data-copy><code>@misc{schwarzbach_radiocal_2026,
+  author    = {Schwarzbach, Paul},
+  title     = {radiocal: reference implementations and result tables for
+               infrastructure self-calibration},
+  year      = {2026},
+  publisher = {Zenodo},
+  version   = {1.0.0},
+  doi       = {10.5281/zenodo.24134343},
+  note      = {Code and data}
+}</code></pre>
+    </div>
+  </div>
+
+  <details class="bib" id="cite-uwbasc">
+    <summary><span class="nobr">UWB-ASC</span>: dataset record and&nbsp;descriptor</summary>
+    <div class="code-block">
+<pre data-copy><code>@misc{schwarzbach_uwbasc_2026,
+  author    = {Schwarzbach, Paul},
+  title     = {{UWB} Anchor Self-Calibration Dataset ({UWB-ASC})},
+  year      = {2026},
+  publisher = {Zenodo},
+  version   = {1.0.0},
+  doi       = {10.5281/zenodo.24055896}
+}
+@misc{schwarzbach_uwbasc_descriptor_2026,
+  author        = {Schwarzbach, Paul},
+  title         = {Descriptor: {UWB} Anchor Self-Calibration Dataset ({UWB-ASC})},
+  year          = {2026},
+  eprint        = {2611.11579},
+  archivePrefix = {arXiv},
+  primaryClass  = {eess.SP},
+  doi           = {10.48550/arXiv.2611.11579},
+  note          = {Submitted to IEEE Data Descriptions}
+}</code></pre>
+    </div>
+  </details>
+  <details class="bib" id="cite-jispin">
+    <summary>IEEE JISPIN 2026: grid-based uncertainty&nbsp;propagation</summary>
+    <div class="code-block">
+<pre data-copy><code>@article{schwarzbach_uncertainty_2026,
+  author  = {Schwarzbach, Paul and Jung, Andrea},
+  title   = {Evaluation of Grid-Based Uncertainty Propagation for Collaborative
+             Self-Calibration in Indoor Positioning Systems},
+  journal = {IEEE Journal of Indoor and Seamless Positioning and Navigation},
+  volume  = {4},
+  pages   = {161--170},
+  year    = {2026},
+  doi     = {10.1109/JISPIN.2026.3687458}
+}</code></pre>
+    </div>
+  </details>
+  <details class="bib" id="cite-access">
+    <summary>IEEE Access 2026: terminology&nbsp;review</summary>
+    <div class="code-block">
+<pre data-copy><code>@article{schwarzbach_terminology_2026,
+  author  = {Schwarzbach, Paul},
+  title   = {Terminology Fragmentation of Infrastructure Calibration in
+             Radio-Based Indoor Positioning: A Systematic Review},
+  journal = {IEEE Access},
+  volume  = {14},
+  pages   = {51603--51619},
+  year    = {2026},
+  doi     = {10.1109/ACCESS.2026.3680224}
+}</code></pre>
+    </div>
+  </details>
+  <details class="bib" id="cite-ipin">
+    <summary>IPIN 2022: Bayesian&nbsp;<span class="nobr">auto-positioning</span></summary>
+    <div class="code-block">
+<pre data-copy><code>@inproceedings{jung_auto-positioning_2022,
+  author    = {Jung, Andrea and Schwarzbach, Paul and Michler, Oliver},
+  title     = {Auto-Positioning in Radio-based Localization Systems:
+               A {Bayesian} Approach},
+  booktitle = {2022 IEEE 12th International Conference on Indoor Positioning
+               and Indoor Navigation (IPIN)},
+  pages     = {1--7},
+  year      = {2022},
+  doi       = {10.1109/IPIN54987.2022.9917513}
+}</code></pre>
+    </div>
+  </details>
+</section>
+
+<section class="wrap section" id="people" aria-labelledby="people-h">
+  <h2 id="people-h">People &amp;&nbsp;acknowledgement</h2>
+  <div class="cols cols-even">
+    <div class="prose">
+      <h3>Authors</h3>
+      <ul class="people">
+        <li>Paul Schwarzbach <a class="orcid" href="https://orcid.org/0000-0002-1091-782X" aria-label="ORCID of Paul Schwarzbach" target="_blank" rel="noopener">iD</a> <span class="sub">all&nbsp;five&nbsp;works</span></li>
+        <li>Andrea Jung <a class="orcid" href="https://orcid.org/0000-0003-1019-6134" aria-label="ORCID of Andrea Jung" target="_blank" rel="noopener">iD</a> <span class="sub">IPIN 2022 and IEEE&nbsp;JISPIN&nbsp;2026</span></li>
+        <li>Oliver Michler <a class="orcid" href="https://orcid.org/0000-0002-8599-5304" aria-label="ORCID of Oliver Michler" target="_blank" rel="noopener">iD</a>&nbsp;<span class="sub">IPIN&nbsp;2022</span></li>
+      </ul>
+      <p class="note">The work was carried out at TUD Dresden University of&nbsp;Technology.</p>
+    </div>
+    <div class="prose">
+      <h3>Acknowledgement</h3>
+      <p>The IPIN 2022 study was supported by the Federal Ministry for Economic Affairs and Climate Action (BMWK) on the basis of a decision by the German Bundestag. Fynn Hansen, Albrecht Michler and Andrea Jung supported the measurement campaigns of <span class="nobr">UWB-ASC</span>. Deveritec GmbH provided the firmware that enabled the fully meshed measurements, and MRK Management Consultants GmbH provided access to the hall. <span class="nobr">UWB-ASC</span> was done independently of any grants&nbsp;or&nbsp;awards.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Maintained by Paul Schwarzbach · <a href="https://orcid.org/0000-0002-1091-782X" target="_blank" rel="noopener">ORCID</a> · <a href="https://github.com/PaulSchwarzbach" target="_blank" rel="noopener">GitHub</a> · See also <a href="https://paulschwarzbach.github.io/hymn/" target="_blank" rel="noopener">HYMN</a> · Last updated <time datetime="2026-11-13">13 November&nbsp;2026</time></p>
+    <p>Page text CC BY 4.0, page code MIT. Figures are reproduced from the cited publications and credited in place, those of the IEEE Access and JISPIN papers under CC BY 4.0. This page sets no cookies and loads no third-party resources. It is hosted on GitHub&nbsp;Pages.</p>
+  </div>
+</footer>
+
+<script src="assets/js/main.js?v=16427905" defer></script>
+</body>
+</html>

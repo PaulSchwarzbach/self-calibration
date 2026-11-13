@@ -1,0 +1,5 @@
+# local caches and inputs, never published
+_src/
+_incoming/
+brand/logo/png/
+__pycache__/
